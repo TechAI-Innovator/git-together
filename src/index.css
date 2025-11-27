@@ -2,20 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222 84% 5%;
-  --primary: 222 47% 11%;
-  --primary-foreground: 210 40% 98%;
-}
-
-.dark {
-  --background: 222 84% 5%;
-  --foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222 47% 11%;
-}
-
-body {
-  @apply bg-background text-foreground;
+@layer base {
+  body {
+    @apply m-0 min-w-[320px] min-h-screen overflow-x-hidden;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
 }
