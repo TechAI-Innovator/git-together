@@ -2,6 +2,7 @@
   "dependencies": {
     "@vitejs/plugin-react-swc": "^4.2.2",
     "autoprefixer": "^10.4.22",
+    "lovable-tagger": "^1.1.11",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
