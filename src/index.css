@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
-:root {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-  --primary: 15 91% 47%;
-  --primary-foreground: 0 0% 100%;
-  --accent: 54 100% 50%;
-  --accent-foreground: 0 0% 0%;
-  --muted: 0 0% 20%;
-  --muted-foreground: 0 0% 78%;
+@theme {
+  --color-background: hsl(0 0% 0%);
+  --color-foreground: hsl(0 0% 100%);
+  --color-primary: hsl(15 91% 47%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-accent: hsl(54 100% 50%);
+  --color-accent-foreground: hsl(0 0% 0%);
+  --color-muted: hsl(0 0% 20%);
+  --color-muted-foreground: hsl(0 0% 78%);
+  --font-poppins: 'Poppins', sans-serif;
 }
 
 @layer base {
@@ -17,6 +18,6 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-poppins);
   }
 }
