@@ -3,7 +3,7 @@ const Intro1: React.FC = () => {
   const currentStep = 0;
 
   return (
-    <div className="w-full min-h-screen bg-background relative overflow-hidden font-poppins">
+    <div className="w-full min-h-screen bg-background relative overflow-hidden font-[var(--font-poppins)]">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
