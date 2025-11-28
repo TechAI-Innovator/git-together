@@ -1,11 +1,22 @@
 @import "tailwindcss";
 
+:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --primary: 15 91% 47%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 54 100% 50%;
+  --accent-foreground: 0 0% 0%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 78%;
+}
+
 @layer base {
   body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
   }
 }
