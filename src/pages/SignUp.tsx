@@ -9,7 +9,7 @@ const SignUp: React.FC = () => {
       <div className="pt-12">
         <button 
           onClick={() => navigate(-1)}
-          className="text-foreground text-2xl"
+          className="text-foreground text-4xl"
         >
           &#x3c;
         </button>
@@ -59,12 +59,12 @@ const SignUp: React.FC = () => {
         {/* Divider with Or */}
         <div className="flex items-center gap-4 my-8">
           <div className="flex-1 h-px bg-muted"></div>
-          <span className="text-muted-foreground text-sm">Or</span>
+          <span className="text-muted-foreground text-lg font-bold">Or</span>
           <div className="flex-1 h-px bg-muted"></div>
         </div>
 
         {/* Sign up text */}
-        <p className="text-foreground text-sm text-center mb-4">
+        <p className="text-foreground text-sm text-center mb-8">
           Don't have an account? <button className="font-semibold">Sign up</button>
         </p>
 
