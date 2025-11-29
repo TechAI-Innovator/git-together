@@ -1,12 +1,25 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MobileOnly from './components/MobileOnly';
 import Landing from './pages/Landing';
+import Intro1 from './pages/Intro1';
+import Intro2 from './pages/Intro2';
+import Intro3 from './pages/Intro3';
+import Intro4 from './pages/Intro4'; 
 import './App.css';
 
 function App() {
   return (
-    <MobileOnly>
-      <Landing />
-    </MobileOnly>
+    <BrowserRouter>
+      <MobileOnly>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/intro1" element={<Intro1 />} />
+          <Route path="/intro2" element={<Intro2 />} />
+          <Route path="/intro3" element={<Intro3 />} />
+          <Route path="/intro4" element={<Intro4 />} />
+        </Routes>
+      </MobileOnly>
+    </BrowserRouter>
   );
 }
 
