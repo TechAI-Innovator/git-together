@@ -13,7 +13,7 @@ const RoleSelection: React.FC = () => {
         </h1>
         
         {/* Subtext */}
-        <p className="text-muted-foreground text-sm text-center mb-10">
+        <p className="text-primary text-xs text-center mb-16">
           Pick a role according to how you use the app
         </p>
         
@@ -22,7 +22,7 @@ const RoleSelection: React.FC = () => {
           {/* Customer Button - Primary filled */}
           <button 
             onClick={() => navigate('/customer')}
-            className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium hover:opacity-90 active:opacity-80 transition-opacity"
+            className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium"
           >
             Customer
           </button>
@@ -30,7 +30,7 @@ const RoleSelection: React.FC = () => {
           {/* Rider Button - White outline */}
           <button 
             onClick={() => navigate('/rider')}
-            className="w-full py-4 bg-transparent text-foreground border border-foreground rounded-full text-lg font-medium hover:bg-foreground/10 active:bg-foreground/20 transition-colors"
+            className="w-full py-4 bg-foreground text-background rounded-full text-lg font-medium"
           >
             Rider
           </button>
@@ -38,7 +38,7 @@ const RoleSelection: React.FC = () => {
           {/* Restaurant Button - Accent outline */}
           <button 
             onClick={() => navigate('/restaurant')}
-            className="w-full py-4 bg-transparent text-accent border border-accent rounded-full text-lg font-medium hover:bg-accent/10 active:bg-accent/20 transition-colors"
+            className="w-full py-4 bg-accent text-background rounded-full text-lg font-medium"
           >
             Restaurant
           </button>
@@ -49,9 +49,20 @@ const RoleSelection: React.FC = () => {
       <div className="pb-8 pt-12">
         <p className="text-muted-foreground text-xs text-center">
           By using this application, you agree to our{' '}
-          <span className="text-accent">Terms</span> and
+          <button 
+            onClick={() => navigate('/terms')}
+            className="text-primary"
+          >
+            Terms
+          </button>{' '}
+          and
           <br />
-          <span className="text-accent">Privacy policy</span>.
+          <button 
+            onClick={() => navigate('/privacy-policy')}
+            className="text-primary"
+          >
+            Privacy policy
+          </button>.
         </p>
       </div>
     </div>

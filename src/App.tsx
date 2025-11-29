@@ -6,6 +6,8 @@ import Intro2 from './pages/Intro2';
 import Intro3 from './pages/Intro3';
 import Intro4 from './pages/Intro4';
 import RoleSelection from './pages/RoleSelection';
+import Terms from './pages/Terms';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import './App.css';
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
           <Route path="/intro3" element={<Intro3 />} />
           <Route path="/intro4" element={<Intro4 />} />
           <Route path="/role-selection" element={<RoleSelection />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
       </MobileOnly>
     </BrowserRouter>
