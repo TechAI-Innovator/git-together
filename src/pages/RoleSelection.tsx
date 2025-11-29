@@ -21,7 +21,7 @@ const RoleSelection: React.FC = () => {
         <div className="flex flex-col gap-5">
           {/* Customer Button - Primary filled */}
           <button 
-            onClick={() => navigate('/customer')}
+            onClick={() => navigate('/signup')}
             className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium"
           >
             Customer
@@ -29,7 +29,7 @@ const RoleSelection: React.FC = () => {
           
           {/* Rider Button - White outline */}
           <button 
-            onClick={() => navigate('/rider')}
+            onClick={() => navigate('/signup')}
             className="w-full py-4 bg-foreground text-background rounded-full text-lg font-medium"
           >
             Rider
@@ -37,7 +37,7 @@ const RoleSelection: React.FC = () => {
           
           {/* Restaurant Button - Accent outline */}
           <button 
-            onClick={() => navigate('/restaurant')}
+            onClick={() => navigate('/signup')}
             className="w-full py-4 bg-accent text-background rounded-full text-lg font-medium"
           >
             Restaurant
