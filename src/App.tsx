@@ -4,7 +4,8 @@ import Landing from './pages/Landing';
 import Intro1 from './pages/Intro1';
 import Intro2 from './pages/Intro2';
 import Intro3 from './pages/Intro3';
-import Intro4 from './pages/Intro4'; 
+import Intro4 from './pages/Intro4';
+import RoleSelection from './pages/RoleSelection';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/intro2" element={<Intro2 />} />
           <Route path="/intro3" element={<Intro3 />} />
           <Route path="/intro4" element={<Intro4 />} />
+          <Route path="/role-selection" element={<RoleSelection />} />
         </Routes>
       </MobileOnly>
     </BrowserRouter>
