@@ -6,14 +6,19 @@ const SignUpForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const isPasswordValid = password.length >= 6;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      return;
+    }
     // TODO: Implement sign up logic
     console.log('Sign up with:', { email, password });
   };
 
   return (
-    <div className="w-full min-h-screen bg-background flex flex-col font-[var(--font-poppins)] px-6">
+    <div className="w-full min-h-screen bg-background flex flex-col font-[var(--font-poppins)] px-4">
       {/* Back Button */}
       <div className="pt-12">
         <button 
@@ -25,11 +30,11 @@ const SignUpForm: React.FC = () => {
       </div>
 
       {/* Logo */}
-      <div className="mt-8 mb-4">
+      <div className="mt-6 mb-2">
         <img 
           src="/logo/Fast bite transparent I.png" 
           alt="Fast Bites" 
-          className="h-10 object-contain"
+          className="h-[5rem] object-contain"
         />
       </div>
 
@@ -44,9 +49,9 @@ const SignUpForm: React.FC = () => {
       </p>
 
       {/* Progress Bar */}
-      <div className="flex gap-1 mb-10">
+      <div className="flex mb-10">
         <div className="flex-1 h-1 bg-primary rounded-full"></div>
-        <div className="flex-1 h-1 bg-muted rounded-full"></div>
+        <div className="flex-1 h-1 bg-foreground rounded-full"></div>
       </div>
 
       {/* Form */}
@@ -60,7 +65,7 @@ const SignUpForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E.g johndoe@gmail.com"
-          className="w-full py-4 px-4 bg-transparent border border-muted rounded-xl text-foreground placeholder:text-muted-foreground mb-4"
+          className="w-full py-4 px-4 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-4"
         />
 
         {/* Password Field */}
@@ -72,13 +77,19 @@ const SignUpForm: React.FC = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Minimum of 6 characters"
-          className="w-full py-4 px-4 bg-transparent border border-muted rounded-xl text-foreground placeholder:text-muted-foreground mb-6"
+          minLength={6}
+          className="w-full py-4 px-4 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-6"
         />
 
         {/* Continue Button */}
         <button 
           type="submit"
-          className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium mb-6"
+          disabled={!isPasswordValid}
+          className={`w-full py-4 rounded-full text-lg font-medium mb-6 transition-opacity ${
+            isPasswordValid 
+              ? 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-80' 
+              : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+          }`}
         >
           Continue
         </button>
@@ -86,9 +97,9 @@ const SignUpForm: React.FC = () => {
 
       {/* Divider with Or */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 h-px bg-muted"></div>
+        <div className="flex-1 h-px bg-foreground"></div>
         <span className="text-muted-foreground text-lg font-bold">Or</span>
-        <div className="flex-1 h-px bg-muted"></div>
+        <div className="flex-1 h-px bg-foreground"></div>
       </div>
 
       {/* Social Sign Up Buttons */}
