@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const SignUpForm: React.FC = () => {
   const navigate = useNavigate();
@@ -82,17 +83,14 @@ const SignUpForm: React.FC = () => {
         />
 
         {/* Continue Button */}
-        <button 
+        <Button 
           type="submit"
           disabled={!isPasswordValid}
-          className={`w-full py-3 rounded-full text-lg font-medium mb-6 transition-opacity ${
-            isPasswordValid 
-              ? 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-80' 
-              : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-          }`}
+          variant="primary"
+          className="mb-6"
         >
           Continue
-        </button>
+        </Button>
       </form>
 
       {/* Divider with Or */}
@@ -105,20 +103,22 @@ const SignUpForm: React.FC = () => {
       {/* Social Sign Up Buttons */}
       <div className="flex flex-col gap-4">
         {/* Google Button */}
-        <button 
-          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+        <Button 
+          variant="foreground"
+          size="base"
+          icon="/assets/google.svg"
         >
-          <img src="/assets/google.svg" alt="Google" className="w-6 h-6" />
           Sign up with Google
-        </button>
+        </Button>
         
         {/* Apple Button */}
-        <button 
-          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+        <Button 
+          variant="foreground"
+          size="base"
+          icon="/assets/apple.svg"
         >
-          <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
           Sign up with Apple
-        </button>
+        </Button>
       </div>
 
       {/* Spacer */}

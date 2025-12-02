@@ -9,6 +9,7 @@ import RoleSelection from './pages/RoleSelection';
 import SignUp from './pages/SignUp';
 import SignUpForm from './pages/SignUpForm';
 import SignInForm from './pages/SignInForm';
+import ForgotPassword from './pages/ForgotPassword';
 import Terms from './pages/Terms';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import './App.css';
@@ -27,6 +28,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signup-form" element={<SignUpForm />} />
           <Route path="/signin-form" element={<SignInForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>

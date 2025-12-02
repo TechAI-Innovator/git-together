@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
@@ -32,28 +33,13 @@ const SignUp: React.FC = () => {
         {/* Social Sign Up Buttons */}
         <div className="flex flex-col gap-4">
           {/* Google Button */}
-          <button 
-            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+          <Button 
+            variant="foreground"
+            size="base"
+            icon="/assets/google.svg"
           >
-            <img src="/assets/google.svg" alt="Google" className="w-6 h-6" />
             Sign up with Google
-          </button>
-          
-          {/* Apple Button */}
-          {/* <button 
-            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
-          >
-            <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
-            Sign up with Apple
-          </button> */}
-          
-          {/* Facebook Button */}
-          {/* <button 
-            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
-          >
-            <img src="/assets/facebook.svg" alt="Facebook" className="w-6 h-6" />
-            Sign up with Facebook
-          </button> */}
+          </Button>
         </div>
 
         {/* Divider with Or */}
@@ -69,12 +55,12 @@ const SignUp: React.FC = () => {
         </p>
 
         {/* Log In Button */}
-        <button 
+        <Button 
           onClick={() => navigate('/signin-form')}
-          className="w-full py-3 bg-primary text-primary-foreground rounded-full text-lg font-medium"
+          variant="primary"
         >
           Sign In
-        </button>
+        </Button>
       </div>
       
       {/* Footer */}
