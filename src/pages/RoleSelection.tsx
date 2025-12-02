@@ -22,7 +22,7 @@ const RoleSelection: React.FC = () => {
           {/* Customer Button - Primary filled */}
           <button 
             onClick={() => navigate('/signup')}
-            className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium"
+            className="w-full py-3 bg-primary text-primary-foreground rounded-full text-lg font-medium"
           >
             Customer
           </button>
@@ -30,7 +30,7 @@ const RoleSelection: React.FC = () => {
           {/* Rider Button - White outline */}
           <button 
             onClick={() => navigate('/signup')}
-            className="w-full py-4 bg-foreground text-background rounded-full text-lg font-medium"
+            className="w-full py-3 bg-foreground text-background rounded-full text-lg font-medium"
           >
             Rider
           </button>
@@ -38,7 +38,7 @@ const RoleSelection: React.FC = () => {
           {/* Restaurant Button - Accent outline */}
           <button 
             onClick={() => navigate('/signup')}
-            className="w-full py-4 bg-accent text-background rounded-full text-lg font-medium"
+            className="w-full py-3 bg-accent text-background rounded-full text-lg font-medium"
           >
             Restaurant
           </button>

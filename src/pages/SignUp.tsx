@@ -33,7 +33,7 @@ const SignUp: React.FC = () => {
         <div className="flex flex-col gap-4">
           {/* Google Button */}
           <button 
-            className="w-full py-4 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
           >
             <img src="/assets/google.svg" alt="Google" className="w-6 h-6" />
             Sign up with Google
@@ -41,26 +41,26 @@ const SignUp: React.FC = () => {
           
           {/* Apple Button */}
           <button 
-            className="w-full py-4 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
           >
             <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
             Sign up with Apple
           </button>
           
           {/* Facebook Button */}
-          <button 
-            className="w-full py-4 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+          {/* <button 
+            className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
           >
             <img src="/assets/facebook.svg" alt="Facebook" className="w-6 h-6" />
             Sign up with Facebook
-          </button>
+          </button> */}
         </div>
 
         {/* Divider with Or */}
         <div className="flex items-center gap-4 my-8">
-          <div className="flex-1 h-px bg-muted"></div>
+          <div className="flex-1 h-px bg-foreground"></div>
           <span className="text-muted-foreground text-lg font-bold">Or</span>
-          <div className="flex-1 h-px bg-muted"></div>
+          <div className="flex-1 h-px bg-foreground"></div>
         </div>
 
         {/* Sign up text */}
@@ -70,9 +70,9 @@ const SignUp: React.FC = () => {
 
         {/* Log In Button */}
         <button 
-          className="w-full py-4 bg-primary text-primary-foreground rounded-full text-lg font-medium"
+          className="w-full py-3 bg-primary text-primary-foreground rounded-full text-lg font-medium"
         >
-          Log In
+          Sign In
         </button>
       </div>
       

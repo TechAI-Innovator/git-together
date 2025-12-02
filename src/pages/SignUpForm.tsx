@@ -65,7 +65,7 @@ const SignUpForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E.g johndoe@gmail.com"
-          className="w-full py-4 px-4 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-4"
+          className="w-full p-3 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-4"
         />
 
         {/* Password Field */}
@@ -78,14 +78,14 @@ const SignUpForm: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Minimum of 6 characters"
           minLength={6}
-          className="w-full py-4 px-4 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-6"
+          className="w-full p-3 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-6"
         />
 
         {/* Continue Button */}
         <button 
           type="submit"
           disabled={!isPasswordValid}
-          className={`w-full py-4 rounded-full text-lg font-medium mb-6 transition-opacity ${
+          className={`w-full py-3 rounded-full text-lg font-medium mb-6 transition-opacity ${
             isPasswordValid 
               ? 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-80' 
               : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
@@ -106,7 +106,7 @@ const SignUpForm: React.FC = () => {
       <div className="flex flex-col gap-4">
         {/* Google Button */}
         <button 
-          className="w-full py-4 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
         >
           <img src="/assets/google.svg" alt="Google" className="w-6 h-6" />
           Sign up with Google
@@ -114,7 +114,7 @@ const SignUpForm: React.FC = () => {
         
         {/* Apple Button */}
         <button 
-          className="w-full py-4 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
         >
           <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
           Sign up with Apple
