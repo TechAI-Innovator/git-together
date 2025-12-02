@@ -40,12 +40,12 @@ const SignUp: React.FC = () => {
           </button>
           
           {/* Apple Button */}
-          <button 
+          {/* <button 
             className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
           >
             <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
             Sign up with Apple
-          </button>
+          </button> */}
           
           {/* Facebook Button */}
           {/* <button 
@@ -70,6 +70,7 @@ const SignUp: React.FC = () => {
 
         {/* Log In Button */}
         <button 
+          onClick={() => navigate('/signin-form')}
           className="w-full py-3 bg-primary text-primary-foreground rounded-full text-lg font-medium"
         >
           Sign In
