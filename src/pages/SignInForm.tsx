@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const SignInForm: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <div className="w-full min-h-screen bg-background flex flex-col font-[var(--font-poppins)] px-4">
@@ -71,23 +73,42 @@ const SignInForm: React.FC = () => {
 
         {/* Remember Me Checkbox */}
         <div className="flex items-center mb-6">
-          <input 
-            type="checkbox" 
-            id="rememberMe" 
-            className="w-4 h-4 mr-2 bg-black border-2 border-primary" 
-          />
-          <label htmlFor="rememberMe" className="text-foreground text-sm">
+          <button
+            type="button"
+            onClick={() => setRememberMe(!rememberMe)}
+            className={`w-4 h-4 mr-2 border-2 border-primary rounded flex items-center justify-center transition-colors ${
+              rememberMe ? 'bg-primary' : 'bg-background'
+            }`}
+          >
+            {rememberMe && (
+              <svg 
+                viewBox="0 0 12 12" 
+                fill="none" 
+                className="w-3 h-3"
+              >
+                <path 
+                  d="M2 6L5 9L10 3" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </button>
+          <label className="text-foreground text-sm">
             Remember me
           </label>
         </div>
 
         {/* Continue Button */}
-        <button 
+        <Button 
           type="submit"
-          className={`w-full py-3 rounded-full text-lg font-medium mb-6 bg-primary text-primary-foreground`}
+          variant="primary"
+          className="mb-6"
         >
           Continue
-        </button>
+        </Button>
       </form>
 
       {/* Forgot Password */}
@@ -108,20 +129,22 @@ const SignInForm: React.FC = () => {
       {/* Social Sign Up Buttons */}
       <div className="flex flex-col gap-4">
         {/* Google Button */}
-        <button 
-          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+        <Button 
+          variant="foreground"
+          size="base"
+          icon="/assets/google.svg"
         >
-          <img src="/assets/google.svg" alt="Google" className="w-6 h-6" />
           Sign up with Google
-        </button>
+        </Button>
         
         {/* Apple Button */}
-        <button 
-          className="w-full py-3 bg-foreground text-background rounded-full text-base font-medium flex items-center justify-center gap-3"
+        <Button 
+          variant="foreground"
+          size="base"
+          icon="/assets/apple.svg"
         >
-          <img src="/assets/apple.svg" alt="Apple" className="w-6 h-6" />
           Sign up with Apple
-        </button>
+        </Button>
       </div>
 
       {/* Spacer */}
