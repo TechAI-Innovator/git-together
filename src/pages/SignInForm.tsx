@@ -120,32 +120,32 @@ const SignInForm: React.FC = () => {
         </button>
 
       {/* Divider with Or */}
-      <div className="flex items-center gap-4 mb-6">
+      {/* <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 h-px bg-foreground"></div>
         <span className="text-muted-foreground text-lg font-bold">Or</span>
         <div className="flex-1 h-px bg-foreground"></div>
-      </div>
+      </div> */}
 
       {/* Social Sign Up Buttons */}
-      <div className="flex flex-col gap-4">
+      {/* <div className="flex flex-col gap-4"> */}
         {/* Google Button */}
-        <Button 
+        {/* <Button 
           variant="foreground"
           size="base"
           icon="/assets/google.svg"
         >
           Sign up with Google
         </Button>
-        
+         */}
         {/* Apple Button */}
-        <Button 
+        {/* <Button 
           variant="foreground"
           size="base"
           icon="/assets/apple.svg"
         >
           Sign up with Apple
         </Button>
-      </div>
+      </div> */}
 
       {/* Spacer */}
       <div className="flex-1"></div>

@@ -10,7 +10,7 @@ const RoleSelection: React.FC = () => {
       <div className="flex-1 flex flex-col justify-center">
         {/* Heading */}
         <h1 className="text-3xl font-light text-foreground text-center mb-2">
-          Who are you?
+          Who Are You?
         </h1>
         
         {/* Subtext */}

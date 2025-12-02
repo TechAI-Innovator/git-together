@@ -6,6 +6,7 @@ const SignUpForm: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const isPasswordValid = password.length >= 6;
 
@@ -41,7 +42,7 @@ const SignUpForm: React.FC = () => {
 
       {/* Heading */}
       <h1 className="text-3xl font-bold text-foreground mb-1">
-        Sign up
+        Sign Up
       </h1>
       
       {/* Subtext */}
@@ -82,6 +83,36 @@ const SignUpForm: React.FC = () => {
           className="w-full p-3 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-6"
         />
 
+        {/* Remember Me Checkbox */}
+        <div className="flex items-center mb-6">
+          <button
+            type="button"
+            onClick={() => setRememberMe(!rememberMe)}
+            className={`w-4 h-4 mr-2 border-2 border-primary rounded flex items-center justify-center transition-colors ${
+              rememberMe ? 'bg-primary' : 'bg-background'
+            }`}
+          >
+            {rememberMe && (
+              <svg 
+                viewBox="0 0 12 12" 
+                fill="none" 
+                className="w-3 h-3"
+              >
+                <path 
+                  d="M2 6L5 9L10 3" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </button>
+          <label className="text-foreground text-sm">
+            Remember me
+          </label>
+        </div>
+
         {/* Continue Button */}
         <Button 
           type="submit"
@@ -94,32 +125,32 @@ const SignUpForm: React.FC = () => {
       </form>
 
       {/* Divider with Or */}
-      <div className="flex items-center gap-4 mb-6">
+      {/* <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 h-px bg-foreground"></div>
         <span className="text-muted-foreground text-lg font-bold">Or</span>
         <div className="flex-1 h-px bg-foreground"></div>
-      </div>
+      </div> */}
 
       {/* Social Sign Up Buttons */}
-      <div className="flex flex-col gap-4">
+      {/* <div className="flex flex-col gap-4"> */}
         {/* Google Button */}
-        <Button 
+        {/* <Button 
           variant="foreground"
           size="base"
           icon="/assets/google.svg"
         >
           Sign up with Google
         </Button>
-        
+         */}
         {/* Apple Button */}
-        <Button 
+        {/* <Button 
           variant="foreground"
           size="base"
           icon="/assets/apple.svg"
         >
           Sign up with Apple
         </Button>
-      </div>
+      </div> */}
 
       {/* Spacer */}
       <div className="flex-1"></div>
