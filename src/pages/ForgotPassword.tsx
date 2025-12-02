@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
 const ForgotPassword: React.FC = () => {
@@ -92,7 +92,7 @@ const ForgotPassword: React.FC = () => {
             value={digit}
             onChange={(e) => handleChange(index, e.target.value)}
             onKeyDown={(e) => handleKeyDown(index, e)}
-            className="w-14 h-14 bg-background border-2 border-primary rounded-xl text-foreground text-center text-xl font-semibold focus:outline-none focus:border-primary"
+            className="w-14 h-14 bg-[hsl(0_0%_19%)] border-2 border-primary rounded-xl text-foreground text-center text-xl font-semibold focus:outline-none focus:border-primary"
           />
         ))}
       </div>

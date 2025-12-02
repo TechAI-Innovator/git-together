@@ -15,8 +15,7 @@ const SignUpForm: React.FC = () => {
     if (!isPasswordValid) {
       return;
     }
-    // TODO: Implement sign up logic
-    console.log('Sign up with:', { email, password });
+    navigate('/signup-form-2');
   };
 
   return (
