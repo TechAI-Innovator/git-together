@@ -47,7 +47,7 @@ const SignUp: React.FC = () => {
             variant="foreground"
             size="base"
             icon="assets/Fast bite transparent I 1.svg"
-            iconSize="w-10 h-10"
+            iconSize="w-8 h-8 -my-1"
           >
             Sign up with Fast Bites
           </Button>

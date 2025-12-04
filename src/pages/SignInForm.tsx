@@ -82,11 +82,11 @@ const SignInForm: React.FC = () => {
               <svg 
                 viewBox="0 0 12 12" 
                 fill="none" 
-                className="w-full h-full"
+                className="w-full h-full text-primary"
               >
                 <path 
                   d="M2 6L5 9L10 3" 
-                  stroke="hsl(var(--primary))" 
+                  stroke="currentColor" 
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
