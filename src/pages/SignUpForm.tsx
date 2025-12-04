@@ -87,9 +87,7 @@ const SignUpForm: React.FC = () => {
           <button
             type="button"
             onClick={() => setRememberMe(!rememberMe)}
-            className={`w-4 h-4 mr-2 border-2 border-primary rounded flex items-center justify-center transition-colors ${
-              rememberMe ? 'bg-primary' : 'bg-background'
-            }`}
+            className={`w-4 h-4 mr-2 border-2 border-primary rounded flex items-center justify-center transition-colors`}
           >
             {rememberMe && (
               <svg 
@@ -99,7 +97,7 @@ const SignUpForm: React.FC = () => {
               >
                 <path 
                   d="M2 6L5 9L10 3" 
-                  stroke="white" 
+                  stroke="primary" 
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
