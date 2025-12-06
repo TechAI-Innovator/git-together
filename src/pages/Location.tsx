@@ -50,7 +50,7 @@ const Location: React.FC = () => {
             {/* Enable Device Location Button */}
             <Button 
               variant="foreground"
-              onClick={() => navigate('/complete')}
+            //   onClick={() => navigate('/complete')}
               className="mb-4"
             >
               Enable Device Location
@@ -59,7 +59,7 @@ const Location: React.FC = () => {
             {/* Enter Location Manually Button */}
             <Button 
               variant="primary"
-              onClick={() => navigate('/complete')}
+              onClick={() => navigate('/map')}
             >
               Enter Your Location Manually
             </Button>
