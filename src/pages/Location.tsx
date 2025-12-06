@@ -17,11 +17,11 @@ const Location: React.FC = () => {
         {/* Header with back button and heading */}
         <div className="relative w-full">
           {/* Black background section */}
-          <div className="w-full bg-black px-6 pt-12 pb-8">
+          <div className="w-full bg-black px-6 pt-12">
             {/* Back Button */}
             <button 
               onClick={() => navigate(-1)}
-              className="text-foreground text-4xl mb-4"
+              className="text-foreground text-4xl"
             >
               &#x3c;
             </button>
@@ -46,7 +46,7 @@ const Location: React.FC = () => {
           <div className="absolute -top-24 left-0 right-0 h-24 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
           
           {/* Black background section */}
-          <div className="w-full bg-black px-6 pb-8 pt-4">
+          <div className="w-full bg-black px-6 pb-30">
             {/* Enable Device Location Button */}
             <Button 
               variant="foreground"
