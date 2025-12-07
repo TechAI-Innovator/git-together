@@ -1,12 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import { auth } from '../lib/api';
 
 const SignInForm: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+
+    setLoading(true);
+    setError('');
+
+    const { data, error: authError } = await auth.signin(email, password);
+
+    setLoading(false);
+
+    if (authError) {
+      setError(authError);
+      return;
+    }
+
+    if (data) {
+      // Success - navigate to home/dashboard
+      navigate('/location');
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-background flex flex-col font-[var(--font-poppins)] px-4">
@@ -39,13 +64,18 @@ const SignInForm: React.FC = () => {
         Welcome back
       </p>
 
+      {/* Error Message */}
+      {error && (
+        <p className="text-red-500 text-sm mb-4">{error}</p>
+      )}
+
       {/* Progress Bar */}
       <div className="flex mb-10">
         <div className="flex-1 h-[1px] bg-foreground rounded-full"></div>
       </div>
 
       {/* Form */}
-      <form className="flex flex-col">
+      <form onSubmit={handleSubmit} className="flex flex-col">
         {/* Email Field */}
         <label className="text-foreground text-sm mb-2">
           Email Address
@@ -102,10 +132,11 @@ const SignInForm: React.FC = () => {
         {/* Continue Button */}
         <Button 
           type="submit"
+          disabled={!email || !password || loading}
           variant="primary"
           className="mb-6"
         >
-          Continue
+          {loading ? 'Signing in...' : 'Continue'}
         </Button>
       </form>
 

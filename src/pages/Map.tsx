@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import LocationSearchInput from "../components/LocationSearchInput";
 
 const Map: React.FC = () => {
   const navigate = useNavigate();
@@ -14,13 +15,14 @@ const Map: React.FC = () => {
       
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        <div className="pt-12">
+        {/* Back Button */}
+        <div className="pt-12 px-6 ">
           <button 
             onClick={() => navigate(-1)}
-            className="text-foreground text-4xl"
-            >
+            className="text-foreground text-4xl bg-primary rounded-full w-10 h-10 flex items-center justify-center"
+          >
             &#x3c;
-        </button>
+          </button>
         </div>
         
         {/* Spacer to push content to bottom */}
@@ -32,13 +34,7 @@ const Map: React.FC = () => {
           {/* Black background section */}
           <div className="w-full bg-black px-6 py-12 rounded-t-[3rem]">
             {/* Enable Device Location Button */}
-            <Button 
-              variant="foreground"
-            //   onClick={() => navigate('/complete')}
-              className="mb-24 text-left"
-            >
-              Input your location
-            </Button>
+            <LocationSearchInput />
             
             {/* Enter Location Manually Button */}
             <Button 

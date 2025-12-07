@@ -1,21 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import { auth } from '../lib/api';
 
 const SignUpForm: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const isPasswordValid = password.length >= 6;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isPasswordValid) {
+    if (!isPasswordValid) return;
+
+    setLoading(true);
+    setError('');
+
+    // Sign up with Supabase Auth
+    const { data, error: authError } = await auth.signup(email, password);
+
+    setLoading(false);
+
+    if (authError) {
+      setError(authError);
       return;
     }
-    navigate('/signup-form-2');
+
+    if (data) {
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required
+        setError('Please check your email to confirm your account, then sign in.');
+        return;
+      }
+      
+      // Store for profile creation in next step
+      sessionStorage.setItem('signup_email', email);
+      navigate('/signup-form-2');
+    }
   };
 
   return (
@@ -48,6 +74,11 @@ const SignUpForm: React.FC = () => {
       <p className="text-muted-foreground text-sm mb-6">
         Create an account
       </p>
+
+      {/* Error Message */}
+      {error && (
+        <p className="text-red-500 text-sm mb-4">{error}</p>
+      )}
 
       {/* Progress Bar */}
       <div className="flex mb-10">
@@ -113,11 +144,11 @@ const SignUpForm: React.FC = () => {
         {/* Continue Button */}
         <Button 
           type="submit"
-          disabled={!isPasswordValid}
+          disabled={!isPasswordValid || loading}
           variant="primary"
           className="mb-6"
         >
-          Continue
+          {loading ? 'Creating account...' : 'Continue'}
         </Button>
       </form>
 

@@ -1,47 +1,32 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import { auth } from '../lib/api';
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    // Auto-submit when all 6 digits are filled
-    if (otp.every(digit => digit !== '')) {
-      handleSubmit();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setLoading(true);
+    setError('');
+
+    const { error: authError } = await auth.forgotPassword(email);
+
+    setLoading(false);
+
+    if (authError) {
+      setError(authError);
+      return;
     }
-  }, [otp]);
 
-  const handleChange = (index: number, value: string) => {
-    // Only allow single digit
-    if (value.length > 1) return;
-    
-    // Only allow numbers
-    if (value && !/^\d$/.test(value)) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    // Move to next input if value is entered
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Move to previous input on backspace if current is empty
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleSubmit = () => {
-    const otpCode = otp.join('');
-    console.log('OTP submitted:', otpCode);
-    // TODO: Implement OTP verification logic
+    setSuccess(true);
   };
 
   return (
@@ -72,40 +57,44 @@ const ForgotPassword: React.FC = () => {
       
       {/* Subtext */}
       <p className="text-muted-foreground text-sm mb-6">
-        Let's help you continue your experience.
+        Enter your email to receive a password reset link.
       </p>
+
+      {/* Error/Success Messages */}
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {success && (
+        <p className="text-green-500 text-sm mb-4">
+          Reset link sent! Check your email.
+        </p>
+      )}
 
       {/* Progress Bar */}
       <div className="flex mb-10">
         <div className="flex-1 h-[1px] bg-foreground rounded-full"></div>
       </div>
 
-      {/* OTP Input Boxes */}
-      <div className="flex  mb-8 justify-between">
-        {otp.map((digit, index) => (
-          <input
-            key={index}
-            ref={el => { inputRefs.current[index] = el; }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={digit}
-            onChange={(e) => handleChange(index, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(index, e)}
-            className="w-12 h-12 bg-[hsl(0_0%_19%)] border-2 border-primary rounded-xl text-foreground text-center text-xl font-semibold focus:outline-none focus:border-primary"
-          />
-        ))}
-      </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col">
+        <label className="text-foreground text-sm mb-2">
+          Email Address
+        </label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="E.g johndoe@gmail.com"
+          className="w-full p-3 bg-foreground rounded-xl text-background placeholder:text-muted-foreground mb-6"
+        />
 
-      {/* Continue Button */}
-      <Button 
-        type="button"
-        // onClick={handleSubmit}
-        onClick={() => navigate('/change-password')}
-        variant="primary"
-      >
-        Continue
-      </Button>
+        {/* Continue Button */}
+        <Button 
+          type="submit"
+          disabled={!email || loading || success}
+          variant="primary"
+        >
+          {loading ? 'Sending...' : success ? 'Email Sent' : 'Send Reset Link'}
+        </Button>
+      </form>
 
       {/* Spacer */}
       <div className="flex-1"></div>
