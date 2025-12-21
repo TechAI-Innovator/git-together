@@ -176,7 +176,11 @@ const Home: React.FC = () => {
           {meals.slice(0, 2).map((meal) => (
             <div 
               key={meal.name} 
-              className="flex-1 bg-background/40 backdrop-blur-lg border border-muted/30 rounded-xl overflow-hidden"
+              className="flex-1 backdrop-blur-lg rounded-xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'hsla(0, 0%, 7%, 0.8)', 
+                border: '1px solid hsl(0, 0%, 15%)' 
+              }}
             >
               <div className="h-32 overflow-hidden">
                 <img 
@@ -218,7 +222,11 @@ const Home: React.FC = () => {
           {meals.slice(2, 4).map((meal) => (
             <div 
               key={meal.name} 
-              className="flex-1 bg-background border border-muted/30 rounded-xl overflow-hidden"
+              className="flex-1 backdrop-blur-lg rounded-xl overflow-hidden"
+              style={{ 
+                backgroundColor: 'hsla(0, 0%, 7%, 0.8)', 
+                border: '1px solid hsl(0, 0%, 15%)' 
+              }}
             >
               <div className="h-32 overflow-hidden">
                 <img 
