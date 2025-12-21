@@ -52,11 +52,11 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-background font-[var(--font-poppins)] pb-24">
-      {/* 1st section - Header */}
-      <div className="flex items-center justify-between px-4 pt-6">
+    <div className="w-full min-h-screen bg-background font-[var(--font-poppins)]">
+      {/* 1st section - Header (Fixed) */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background flex items-center justify-between px-4 pt-6 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center overflow-hidden">
+          <div className="w-7 h-7 rounded-full border-2 border-primary flex items-center justify-center overflow-hidden">
             <img 
               src="/assets/user 1 1-home.png" 
               alt="User" 
@@ -64,7 +64,7 @@ const Home: React.FC = () => {
             />
           </div>
           <div>
-            <h2 className="text-foreground font-semibold text-base">John Doe</h2>
+            <h2 className="text-foreground text-lg">John Doe</h2>
             <p className="text-muted-foreground text-xs">123 Nigeria road</p>
           </div>
         </div>
@@ -73,32 +73,59 @@ const Home: React.FC = () => {
             <img 
               src="/assets/history-home.png" 
               alt="History" 
-              className="w-6 h-6"
+              className="w-7 h-7"
             />
           </button>
           <button className="w-10 h-10 flex items-center justify-center">
             <img 
               src="/assets/shopping-cart-home.png" 
               alt="Cart" 
-              className="w-6 h-6"
+              className="w-7 h-7"
             />
           </button>
         </div>
       </div>
 
+      {/* Spacer for fixed header */}
+      <div className="h-20"></div>
+
       {/* 2nd section - Search */}
       <div className="px-4 mt-4">
-        <div className="flex items-center bg-primary/20 rounded-lg px-4 py-3 gap-3">
-          <img 
-            src="/assets/search 2.png" 
-            alt="Search" 
-            className="w-5 h-5 opacity-70"
+        <div className="relative rounded-full overflow-hidden">
+          {/* Orange background layer */}
+          <div className="absolute inset-0 bg-primary/20" />
+          
+          {/* Repeating logo pattern overlay - rotated with offset rows */}
+          <div 
+            className="absolute opacity-20 pointer-events-none"
+            style={{
+              width: '800%',
+              height: '800%',
+              top: '-350%',
+              left: '-350%',
+              transform: 'rotate(-35deg)',
+              backgroundImage: `
+                url('/logo/Fast bite transparent I.png'),
+                url('/logo/Fast bite transparent I.png')
+              `,
+              backgroundSize: '20px',
+              backgroundRepeat: 'space',
+            }}
           />
-          <input 
-            type="text" 
-            placeholder="Search" 
-            className="bg-transparent text-foreground placeholder:text-muted-foreground text-sm flex-1 outline-none"
-          />
+          
+          {/* Content layer */}
+          <div className="relative flex items-center px-4 py-3 gap-3">
+            <img 
+              src="/assets/search white.png" 
+              alt="Search" 
+              className="w-5 h-5"
+            />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="bg-transparent text-foreground placeholder:text-muted-foreground text-base flex-1 outline-none"
+            />
+          </div>
         </div>
       </div>
 
@@ -111,24 +138,28 @@ const Home: React.FC = () => {
             alt="Restaurants" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/75 flex items-center justify-center">
             <span className="text-foreground font-semibold text-xl">Restaurants</span>
           </div>
         </div>
 
         {/* Small Category Cards */}
         <div className="flex gap-2">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <div 
               key={category.name} 
-              className="relative flex-1 h-24 rounded-xl overflow-hidden"
+              className={`relative flex-1 h-24 overflow-hidden ${
+                index === 0 ? 'rounded-l-xl' : ''
+              } ${
+                index === categories.length - 1 ? 'rounded-r-xl' : ''
+              }`}
             >
               <img 
                 src={category.image} 
                 alt={category.name} 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/40 flex items-end p-2">
+              <div className="absolute inset-0 bg-black/75 flex items-center justify-center p-2">
                 <span className="text-foreground font-medium text-sm">{category.name}</span>
               </div>
             </div>
@@ -137,12 +168,54 @@ const Home: React.FC = () => {
       </div>
 
       {/* 4th section - Meals */}
-      <div className="px-4 mt-6">
-        <h2 className="text-foreground font-bold text-2xl mb-4">Meals</h2>
+      <div className="px-4 mt-10 pb-24">
+        <h2 className="text-foreground text-3xl mb-4">Meals</h2>
         
         {/* First row - 2 cards */}
         <div className="flex gap-3 mb-3">
           {meals.slice(0, 2).map((meal) => (
+            <div 
+              key={meal.name} 
+              className="flex-1 bg-background/40 backdrop-blur-lg border border-muted/30 rounded-xl overflow-hidden"
+            >
+              <div className="h-32 overflow-hidden">
+                <img 
+                  src={meal.image} 
+                  alt={meal.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-3">
+                <h3 className="text-foreground font-semibold text-base">{meal.name}</h3>
+                <p className="text-muted-foreground text-xs">{meal.restaurant}</p>
+                <div className="flex items-center gap-[2px] mt-1 text-xs text-muted-foreground">
+                  <img 
+                    src="/assets/stopwatch 1-home.png" 
+                    alt="Time" 
+                    className="w-4 h-4"
+                  />
+                  <span>{meal.time}</span>
+                  <span className="text-muted-foreground mx-[1px] text-base">|</span>
+                  <span className="text-muted-foreground">{meal.calories}</span>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-foreground font-bold text-base">{meal.price}</span>
+                  <button className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
+                    <img 
+                      src="/assets/plus 1-home.png" 
+                      alt="Add" 
+                      className="w-3 h-3"
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Second row - 2 cards */}
+        <div className="flex gap-3 mb-3">
+          {meals.slice(2, 4).map((meal) => (
             <div 
               key={meal.name} 
               className="flex-1 bg-background border border-muted/30 rounded-xl overflow-hidden"
@@ -157,46 +230,26 @@ const Home: React.FC = () => {
               <div className="p-3">
                 <h3 className="text-foreground font-semibold text-base">{meal.name}</h3>
                 <p className="text-muted-foreground text-xs">{meal.restaurant}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-primary">
+                <div className="flex items-center gap-[2px] mt-1 text-xs text-muted-foreground">
                   <img 
                     src="/assets/stopwatch 1-home.png" 
                     alt="Time" 
-                    className="w-3 h-3"
+                    className="w-4 h-4"
                   />
                   <span>{meal.time}</span>
-                  <span className="text-muted-foreground mx-1">|</span>
+                  <span className="text-muted-foreground mx-[1px] text-base">|</span>
                   <span className="text-muted-foreground">{meal.calories}</span>
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-foreground font-bold text-base">{meal.price}</span>
-                  <button className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <button className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
                     <img 
                       src="/assets/plus 1-home.png" 
                       alt="Add" 
-                      className="w-4 h-4"
+                      className="w-3 h-3"
                     />
                   </button>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Second row - 3rd card 20% showing, 4th card visible */}
-        <div className="flex gap-3 overflow-hidden">
-          {meals.slice(2, 4).map((meal, index) => (
-            <div 
-              key={meal.name} 
-              className={`flex-1 bg-background border border-muted/30 rounded-xl overflow-hidden ${
-                index === 1 ? 'translate-x-[80%]' : ''
-              }`}
-            >
-              <div className="h-32 overflow-hidden">
-                <img 
-                  src={meal.image} 
-                  alt={meal.name} 
-                  className="w-full h-full object-cover"
-                />
               </div>
             </div>
           ))}
@@ -210,7 +263,7 @@ const Home: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 py-2 px-4 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 p-2 w-14 h-14 rounded-full transition-all items-center justify-center ${
                 activeTab === item.id 
                   ? 'bg-primary' 
                   : 'bg-transparent'
@@ -219,9 +272,9 @@ const Home: React.FC = () => {
               <img 
                 src={item.icon} 
                 alt={item.label} 
-                className="w-6 h-6"
+                className="w-[18px] h-[18px]"
               />
-              <span className={`text-xs ${
+              <span className={`text-[10px] ${
                 activeTab === item.id 
                   ? 'text-foreground font-medium' 
                   : 'text-muted-foreground'
