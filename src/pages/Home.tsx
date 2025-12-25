@@ -172,14 +172,14 @@ const Home: React.FC = () => {
         <h2 className="text-foreground text-3xl mb-4">Meals</h2>
         
         {/* First row - 2 cards */}
-        <div className="flex gap-3 mb-3">
+        <div className="flex gap-2 mb-3">
           {meals.slice(0, 2).map((meal) => (
             <div 
               key={meal.name} 
               className="flex-1 backdrop-blur-lg rounded-xl overflow-hidden"
               style={{ 
-                backgroundColor: 'hsla(0, 0%, 7%, 0.8)', 
-                border: '1px solid hsl(0, 0%, 15%)' 
+                backgroundColor: 'hsla(0, 0%, 10%, 0.8)', 
+                border: '1px solid hsl(0, 0%, 20%)' 
               }}
             >
               <div className="h-32 overflow-hidden">
@@ -218,14 +218,14 @@ const Home: React.FC = () => {
         </div>
 
         {/* Second row - 2 cards */}
-        <div className="flex gap-3 mb-3">
+        <div className="flex gap-2 mb-3">
           {meals.slice(2, 4).map((meal) => (
             <div 
               key={meal.name} 
               className="flex-1 backdrop-blur-lg rounded-xl overflow-hidden"
               style={{ 
-                backgroundColor: 'hsla(0, 0%, 7%, 0.8)', 
-                border: '1px solid hsl(0, 0%, 15%)' 
+                backgroundColor: 'hsla(0, 0%, 10%, 0.8)', 
+                border: '1px solid hsl(0, 0%, 20%)' 
               }}
             >
               <div className="h-32 overflow-hidden">
