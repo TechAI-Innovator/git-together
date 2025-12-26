@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FiSearch, FiMapPin } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiChevronDown } from "react-icons/fi";
 
 interface LocationSearchInputProps {
   onLocationSelect?: (location: {
@@ -8,11 +8,14 @@ interface LocationSearchInputProps {
     lng: number;
   }) => void;
   initialValue?: string;
+  /** Additional className for the container */
+  className?: string;
 }
 
 const LocationSearchInput: React.FC<LocationSearchInputProps> = ({ 
   onLocationSelect,
-  initialValue = ''
+  initialValue = '',
+  className = ''
 }) => {
   const [query, setQuery] = useState(initialValue);
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
@@ -90,7 +93,7 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
   };
 
   return (
-    <div className="relative mb-24">
+    <div className={`relative ${className}`}>
       {/* Dropdown (appears above input) */}
       {open && predictions.length > 0 && (
         <div className="absolute bottom-full mb-2 w-full bg-white rounded-2xl shadow-xl overflow-hidden max-h-60 overflow-y-auto">
@@ -111,9 +114,9 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
       )}
 
       {/* Input Container */}
-      <div className="flex items-center gap-3 bg-white rounded-full px-5 py-4 shadow-lg">
+      <div className="flex items-center gap-3 bg-white rounded-full px-3 py-3 shadow-lg">
         {/* Search Icon */}
-        <FiSearch size={18} />
+        <FiSearch size={18} className="text-black flex-shrink-0" />
 
         {/* Input */}
         <input
@@ -129,6 +132,9 @@ const LocationSearchInput: React.FC<LocationSearchInputProps> = ({
           placeholder="Input your location"
           className="flex-1 outline-none text-background placeholder:text-background text-base font-medium"
         />
+
+        {/* Dropdown Icon */}
+        <FiChevronDown size={18} className="text-black flex-shrink-0" />
       </div>
 
       {/* No results message */}

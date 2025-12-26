@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import Button from '../components/Button';
+import BackButton from '../components/BackButton';
 import LocationSearchInput from "../components/LocationSearchInput";
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import api from '../lib/api';
@@ -210,19 +211,20 @@ const Map: React.FC = () => {
       
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen pointer-events-none">
-        {/* Back Button */}
-        <div className="pt-12 px-6 pointer-events-auto">
-          <button 
-            onClick={() => navigate(-1)}
-            className="text-foreground text-4xl bg-primary rounded-full w-10 h-10 flex items-center justify-center"
-          >
-            &#x3c;
-          </button>
+        {/* Header - Back Button + Search */}
+        <div className="pt-8 px-4 pointer-events-auto">
+          <div className="flex items-center gap-3">
+            <BackButton variant="map" />
+            <LocationSearchInput 
+              onLocationSelect={handleLocationSelect} 
+              className="flex-1"
+            />
+          </div>
         </div>
         
         {/* Selected Location Display */}
         {selectedLocation && (
-          <div className="mx-6 mt-4 bg-black/80 backdrop-blur-sm rounded-xl p-3 pointer-events-auto">
+          <div className="mx-4 mt-4 bg-black/80 backdrop-blur-sm rounded-xl p-3 pointer-events-auto">
             <p className="text-foreground text-sm font-medium">
               📍 {selectedLocation.address}
             </p>
@@ -238,17 +240,14 @@ const Map: React.FC = () => {
         {/* Bottom Content */}
         <div className="relative w-full pointer-events-auto">
           {/* Black background section */}
-          <div className="w-full bg-black px-8 py-8 rounded-t-[3rem]">
-            {/* Location Search Input */}
-            <LocationSearchInput onLocationSelect={handleLocationSelect} />
-            
+          <div className="w-full bg-black px-4 py-8 rounded-t-[3rem]">
             {/* Error Message */}
             {error && (
               <p className="text-red-500 text-sm text-center mb-4">{error}</p>
             )}
             
             {/* Tap to select hint */}
-            <p className="text-muted-foreground text-xs text-center mb-4">
+            <p className="text-muted-foreground text-sm text-center mb-4">
               Or tap on the map to select a location
             </p>
             
