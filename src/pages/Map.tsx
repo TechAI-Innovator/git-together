@@ -49,9 +49,13 @@ const Map: React.FC = () => {
   const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // All hooks must be called before any conditional returns
   const handleLocationSelect = useCallback((location: { address: string; lat: number; lng: number }) => {
+    // Close the search overlay
+    setSearchOverlayOpen(false);
+    
     // Get city and state from the address using geocoding
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ location: { lat: location.lat, lng: location.lng } }, (results, status) => {
@@ -211,14 +215,25 @@ const Map: React.FC = () => {
       
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen pointer-events-none">
-        {/* Header - Back Button + Search */}
+        {/* Header - Back Button + Search Trigger */}
         <div className="pt-8 px-4 pointer-events-auto">
           <div className="flex items-center gap-3">
             <BackButton variant="map" />
-            <LocationSearchInput 
-              onLocationSelect={handleLocationSelect} 
-              className="flex-1"
-            />
+            {/* Search trigger button - opens fullscreen search */}
+            <button
+              onClick={() => setSearchOverlayOpen(true)}
+              className="flex-1 flex items-center gap-3 bg-white rounded-full px-3 py-3 shadow-lg text-left"
+            >
+              <svg className="w-[18px] h-[18px] text-black flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="flex-1 text-base font-sm truncate">
+                {selectedLocation ? selectedLocation.address : 'Input your location'}
+              </span>
+              <svg className="w-[18px] h-[18px] text-black flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         </div>
         
@@ -257,11 +272,57 @@ const Map: React.FC = () => {
               onClick={handleConfirm}
               disabled={!selectedLocation || saving}
             >
-              {saving ? 'Saving...' : selectedLocation ? 'Confirm' : 'Select a Location'}
+              Confirm
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Search Overlay */}
+      {searchOverlayOpen && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          {/* Search Header */}
+          <div className="pt-8 px-4">
+            <LocationSearchInput 
+              onLocationSelect={handleLocationSelect}
+              fullscreenMode={true}
+              autoFocus={true}
+              className="flex-1"
+            />
+          </div>
+          
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Bottom Section */}
+          <div className="px-4 py-8 space-y-1">
+            {/* Progress Bar */}
+            <div className="h-1 bg-foreground rounded-full" />
+
+            {/* Choose on map */}
+            <div
+              className="flex items-center justify-center gap-2 w-full py-2"
+            >
+              <img 
+                src="assets/choose-map.png" 
+                alt="choose on map" 
+                className="w-4 h-4"
+              />
+              <span className="text-muted-foreground text-sm">
+                Choose on map
+              </span>
+            </div>
+            
+            {/* Back to Map Button */}
+            <Button 
+              variant="primary"
+              onClick={() => setSearchOverlayOpen(false)}
+            >
+              Back to Map
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
