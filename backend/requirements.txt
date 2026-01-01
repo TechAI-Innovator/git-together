@@ -1,5 +1,6 @@
 fastapi==0.124.0
 uvicorn==0.38.0
+gunicorn==23.0.0
 sqlalchemy==2.0.44
 alembic==1.17.2
 python-dotenv==1.2.1
