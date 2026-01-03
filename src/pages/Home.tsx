@@ -204,7 +204,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* 4th section - Meals */}
-      <div className={`${responsivePx} mt-10 pb-24`}>
+      <div className={`${responsivePx} mt-20 pb-24`}>
         <h2 className="text-foreground text-3xl mb-4">Meals</h2>
         
         {loading ? (
@@ -212,7 +212,7 @@ const Home: React.FC = () => {
         ) : meals.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">No meals available</div>
         ) : (
-          <div className="grid grid-cols-2 min-[500px]:grid-cols-3 min-[700px]:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 min-[500px]:grid-cols-3 min-[700px]:grid-cols-4 gap-2 space-y-2">
             {meals.map((meal) => (
               <div 
                 key={meal.id} 
@@ -264,7 +264,7 @@ const Home: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 p-2 w-14 min-[400px]:flex-1 h-14 rounded-full min-[400px]:rounded-xl transition-all justify-center ${
+              className={`flex flex-col items-center gap-1 p-2 w-18 min-[400px]:flex-1 h-14 rounded-full transition-all justify-center ${
                 activeTab === item.id 
                   ? 'bg-primary' 
                   : 'bg-transparent'

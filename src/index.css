@@ -50,6 +50,11 @@
   .animate-progress {
     animation: progress 2s ease-out forwards;
   }
+
+  /* Zoom pulse animation for loading */
+  .animate-zoom-pulse {
+    animation: zoom-pulse 2s ease-in-out infinite;
+  }
 }
 
 @keyframes spin-slow {
@@ -67,5 +72,14 @@
   }
   to {
     width: 100%;
+  }
+}
+
+@keyframes zoom-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
   }
 }
