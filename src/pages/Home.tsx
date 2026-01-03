@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../lib/api';
 import type { MenuItemWithRestaurant } from '../lib/api';
 import { responsivePx, responsivePt } from '../constants/responsive';
@@ -43,6 +43,9 @@ const Home: React.FC = () => {
   const [meals, setMeals] = useState<MealDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMeals, setSelectedMeals] = useState<Set<string>>(new Set());
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [cartMessage, setCartMessage] = useState<'added' | 'removed' | null>(null);
+  const cartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,6 +74,15 @@ const Home: React.FC = () => {
     fetchData();
   }, []);
 
+  // Track scroll position to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const categories = [
     { name: 'Shops', image: '/assets/shops.png' },
     { name: 'Pharmacy', image: '/assets/phamarcy.png' },
@@ -84,13 +96,22 @@ const Home: React.FC = () => {
     { id: 'wallet', label: 'Wallet', icon: '/assets/Wallet-home.png' },
   ];
 
+  const showCartNotification = (type: 'added' | 'removed') => {
+    setCartMessage(type);
+    // Clear existing timer and set new one
+    if (cartTimerRef.current) clearTimeout(cartTimerRef.current);
+    cartTimerRef.current = setTimeout(() => setCartMessage(null), 2000);
+  };
+
   const toggleMealSelection = (mealId: string) => {
     setSelectedMeals(prev => {
       const newSet = new Set(prev);
       if (newSet.has(mealId)) {
         newSet.delete(mealId);
+        showCartNotification('removed');
       } else {
         newSet.add(mealId);
+        showCartNotification('added');
       }
       return newSet;
     });
@@ -278,41 +299,31 @@ const Home: React.FC = () => {
       </div>
 
       {/* Floating elements - positioned above bottom nav */}
-      <div className={`fixed bottom-20 left-0 right-0 ${responsivePx} flex items-center justify-between pointer-events-none z-40`}>
-        {/* Up Arrow Button - Left side */}
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%)',
-            border: '1px solid',
-            borderImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%) 1',
-            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
-          }}
-        >
-          <svg 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="white" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M12 19V5M5 12l7-7 7 7" />
-          </svg>
-        </button>
-
-        {/* Added to Cart Popup - Center */}
-        {selectedMeals.size > 0 && (
-          <div className="pointer-events-auto bg-primary rounded-full px-6 py-3 shadow-lg">
-            <span className="text-foreground font-medium text-sm">Added to cart</span>
+      <div className={`fixed bottom-20 left-0 right-0 ${responsivePx} pointer-events-none z-40 flex items-center justify-center h-12`}>
+        
+        {/* Cart Notification - Single popup that updates */}
+        {cartMessage && (
+          <div className={`pointer-events-auto rounded-lg px-4 py-2 shadow-lg animate-fade-in ${
+            cartMessage === 'added' ? 'bg-primary' : 'bg-muted'
+          }`}>
+            <span className="text-foreground font-medium text-xs whitespace-nowrap">
+              {cartMessage === 'added' ? 'Added to cart' : 'Removed from cart'}
+            </span>
           </div>
         )}
 
-        {/* Spacer for right side alignment */}
-        <div className="w-12 h-12"></div>
+        {/* Up Arrow Button - Right side, only shows when scrolled */}
+        {showScrollTop && (
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="absolute right-4 min-[574px]:right-6 pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-lg border border-white/40 shadow-lg transition-opacity"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(50, 50, 50, 0.6) 100%)',
+            }}
+          >
+            <img src="/assets/arrow-up.png" alt="Up Arrow" className="w-7 h-7" />
+          </button>
+        )}
       </div>
 
       {/* 5th section - Bottom Navigation (Fixed) */}
