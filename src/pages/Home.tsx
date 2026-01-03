@@ -42,6 +42,7 @@ const Home: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [meals, setMeals] = useState<MealDisplay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMeals, setSelectedMeals] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,6 +83,18 @@ const Home: React.FC = () => {
     { id: 'support', label: 'Support', icon: '/assets/Chat-home.png' },
     { id: 'wallet', label: 'Wallet', icon: '/assets/Wallet-home.png' },
   ];
+
+  const toggleMealSelection = (mealId: string) => {
+    setSelectedMeals(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(mealId)) {
+        newSet.delete(mealId);
+      } else {
+        newSet.add(mealId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="w-full min-h-screen bg-background font-[var(--font-poppins)]">
@@ -242,7 +255,14 @@ const Home: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-foreground font-bold text-base">{meal.price}</span>
-                    <button className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
+                    <button 
+                      onClick={() => toggleMealSelection(meal.id)}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                        selectedMeals.has(meal.id)
+                          ? 'bg-transparent border-2 border-primary'
+                          : 'bg-primary'
+                      }`}
+                    >
                       <img 
                         src="/assets/plus 1-home.png" 
                         alt="Add" 
