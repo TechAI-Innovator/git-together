@@ -277,6 +277,44 @@ const Home: React.FC = () => {
         )}
       </div>
 
+      {/* Floating elements - positioned above bottom nav */}
+      <div className={`fixed bottom-20 left-0 right-0 ${responsivePx} flex items-center justify-between pointer-events-none z-40`}>
+        {/* Up Arrow Button - Left side */}
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%)',
+            border: '1px solid',
+            borderImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%) 1',
+            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="white" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+        </button>
+
+        {/* Added to Cart Popup - Center */}
+        {selectedMeals.size > 0 && (
+          <div className="pointer-events-auto bg-primary rounded-full px-6 py-3 shadow-lg">
+            <span className="text-foreground font-medium text-sm">Added to cart</span>
+          </div>
+        )}
+
+        {/* Spacer for right side alignment */}
+        <div className="w-12 h-12"></div>
+      </div>
+
       {/* 5th section - Bottom Navigation (Fixed) */}
       <div className={`fixed bottom-0 left-0 right-0 bg-background border-t border-muted/20 ${responsivePx} py-2`}>
         <div className="flex items-center justify-around min-[400px]:justify-center min-[400px]:gap-2 min-[574px]:gap-3">
