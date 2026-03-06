@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { responsivePx } from '../constants/responsive';
 import BackButton from '../components/BackButton';
 import Button from '../components/Button';
@@ -32,7 +32,6 @@ const extrasOptions = [
 ];
 
 const MealDetails: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const meal = location.state as MealData | null;
 
