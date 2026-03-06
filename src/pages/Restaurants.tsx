@@ -66,14 +66,14 @@ const Restaurants = () => {
   }, []);
 
   const handleMouseEnter = (id: string) => {
-    setHoveredId(id);
+    // hover tracked via tooltip only
     hoverTimeoutRef.current = setTimeout(() => {
       setShowTooltip(id);
     }, 1000);
   };
 
   const handleMouseLeave = () => {
-    setHoveredId(null);
+    
     setShowTooltip(null);
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
