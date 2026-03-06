@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, Restaurant } from '../lib/api';
+import { api } from '../lib/api';
+import type { Restaurant } from '../lib/api';
 
 const placeholderRestaurants: Restaurant[] = [
   {
