@@ -21,7 +21,7 @@ interface MealDisplay {
 
 // Placeholder images for meals without images - randomly assigned
 const PLACEHOLDER_IMAGES = [
-  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', // Pizza
+  '/assets/chad-montano-MqT0asuoIcU-unsplash 2.png', // Pizza
   'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop', // Pancakes
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', // Salad
   'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop', // BBQ

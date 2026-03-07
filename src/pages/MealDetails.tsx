@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { responsivePx } from '../constants/responsive';
-import BackButton from '../components/BackButton';
 import Button from '../components/Button';
 
 interface MealData {
@@ -33,6 +32,7 @@ const extrasOptions = [
 
 const MealDetails: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const meal = location.state as MealData | null;
 
   const [quantity, setQuantity] = useState(1);
@@ -104,206 +104,220 @@ const MealDetails: React.FC = () => {
         <img
           src={meal.image}
           alt={meal.name}
-          className="w-full h-full object-cover"
+          className="w-130 h-130 object-cover"
         />
 
         {/* Header overlay: Back button + "Details" on same line */}
-        <div className={`absolute top-0 left-0 right-0 ${responsivePx} pt-10 flex items-center`}>
-          <BackButton variant="map" />
+        <div className={`absolute top-0 left-0 right-0 ${responsivePx} pt-10 flex items-center z-30`}>
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-primary rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0"
+          >
+            <img src="/assets/Back.svg" alt="Back" className="w-5 h-5" />
+          </button>
           <h1 className="flex-1 text-center text-foreground text-xl font-bold -ml-10">Details</h1>
         </div>
       </div>
 
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet - black background, rounded top */}
       <div
         ref={sheetRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`absolute left-0 right-0 bg-background rounded-t-3xl transition-all duration-300 ease-out flex flex-col ${
+        className={`absolute left-0 right-0 bg-black rounded-t-4xl transition-all duration-300 ease-out flex flex-col ${
           sheetExpanded ? 'top-[15%] bottom-0' : 'top-[55%] bottom-0'
         }`}
         style={{ zIndex: 20 }}
       >
-        {/* Drag Handle */}
-        <div className="flex justify-center pt-3 pb-2 flex-shrink-0 cursor-grab"
-          onClick={() => setSheetExpanded(!sheetExpanded)}
-        >
-          <div className="w-12 h-1 bg-muted-foreground/50 rounded-full" />
-        </div>
-
-        {/* Sheet Content - scrollable when expanded */}
-        <div className={`flex-1 overflow-y-auto ${responsivePx} pb-4`}>
-          {/* Price Bar */}
-          <div className="bg-primary/90 rounded-xl px-4 py-3 flex items-center justify-between mb-4">
-            <span className="text-primary-foreground text-sm">Total price</span>
-            <span className="text-primary-foreground text-xl font-bold">₦{totalPrice.toLocaleString()}</span>
-          </div>
-
-          {/* Title + Quantity */}
-          <div className="flex items-start justify-between mb-1">
-            <div className="flex-1">
-              <h2 className="text-foreground text-2xl font-bold">{meal.name}</h2>
-              <p className="text-muted-foreground text-sm">
-                Restaurant: {meal.restaurant.replace('From ', '')}
-              </p>
+        {/* Drag Handle + Price Bar + Content */}
+        <div className="flex flex-col flex-1 min-h-0 text-white bg-primary rounded-t-4xl">
+          
+          {/* Drag handle - line only, centered above */}
+          <div
+            className="flex-shrink-0 cursor-grab"
+            onClick={() => setSheetExpanded(!sheetExpanded)}
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-24 h-2 bg-black rounded-full" />
             </div>
-            <div className="flex items-center gap-3 bg-muted/30 rounded-full px-3 py-2">
-              <button
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                className="w-6 h-6 rounded-full border border-muted-foreground flex items-center justify-center text-foreground"
-              >
-                −
-              </button>
-              <span className="text-foreground font-medium w-4 text-center">{quantity}</span>
-              <button
-                onClick={() => setQuantity(q => q + 1)}
-                className="w-6 h-6 rounded-full border border-muted-foreground flex items-center justify-center text-foreground"
-              >
-                +
-              </button>
+            {/* Price Bar - title left, price right, hugging edges */}
+            <div className={`${responsivePx} py-3 flex items-center justify-between`}>
+              <span className="text-white/90 text-sm">Total price</span>
+              <span className="text-white text-xl font-bold">₦{totalPrice.toLocaleString()}</span>
             </div>
           </div>
 
-          {/* Delivery Time */}
-          <div className="flex items-center gap-1 text-muted-foreground text-sm mb-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-            <span>{meal.time}</span>
-          </div>
-
-          {/* Rating */}
-          <div className="flex gap-0.5 mb-4">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill={star <= (meal.rating || 4) ? '#FFD700' : 'none'}
-                stroke="#FFD700"
-                strokeWidth="2"
-              >
-                <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
-              </svg>
-            ))}
-          </div>
-
-          {/* Expanded content - only visible when pulled up */}
-          {sheetExpanded && (
-            <div className="animate-fade-in">
-              {/* Sauce Selection */}
-              <div className="mb-4">
-                <h3 className="text-foreground text-lg font-medium mb-2">Choose a sauce (required):</h3>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowSauceDropdown(!showSauceDropdown)}
-                    className="w-full bg-muted/30 border border-muted/40 rounded-xl p-3 text-left flex items-center justify-between"
-                  >
-                    <span className={selectedSauce ? 'text-foreground' : 'text-muted-foreground'}>
-                      {selectedSauce ? sauceOptions.find(s => s.id === selectedSauce)?.name : 'Select a sauce'}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </button>
-                  {showSauceDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-muted/40 rounded-xl overflow-hidden z-10">
-                      {sauceOptions.map(sauce => (
-                        <button
-                          key={sauce.id}
-                          onClick={() => {
-                            setSelectedSauce(sauce.id);
-                            setShowSauceDropdown(false);
-                          }}
-                          className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-muted/30 ${
-                            selectedSauce === sauce.id ? 'bg-primary/20 text-primary' : 'text-foreground'
-                          }`}
-                        >
-                          <span>{sauce.name}</span>
-                          {sauce.price > 0 && <span className="text-muted-foreground">+₦{sauce.price}</span>}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <p className="text-right text-sm text-muted-foreground mt-1">Cost: ₦{sauceCost}</p>
-              </div>
-
-              {/* Extras Selection */}
-              <div className="mb-6">
-                <h3 className="text-foreground text-lg font-medium mb-2">Extras (Optional):</h3>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowExtrasDropdown(!showExtrasDropdown)}
-                    className="w-full bg-muted/30 border border-muted/40 rounded-xl p-3 text-left flex items-center justify-between"
-                  >
-                    <span className={selectedExtras.length > 0 ? 'text-foreground' : 'text-muted-foreground'}>
-                      {selectedExtras.length > 0
-                        ? `${selectedExtras.length} extra${selectedExtras.length > 1 ? 's' : ''} selected`
-                        : 'Select your extras'}
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </button>
-                  {showExtrasDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-muted/40 rounded-xl overflow-hidden z-10">
-                      {extrasOptions.map(extra => (
-                        <button
-                          key={extra.id}
-                          onClick={() => toggleExtra(extra.id)}
-                          className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-muted/30 ${
-                            selectedExtras.includes(extra.id) ? 'bg-primary/20 text-primary' : 'text-foreground'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className={`w-4 h-4 rounded border flex items-center justify-center ${
-                              selectedExtras.includes(extra.id) ? 'bg-primary border-primary' : 'border-muted-foreground'
-                            }`}>
-                              {selectedExtras.includes(extra.id) && (
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                                  <path d="M20 6L9 17l-5-5" />
-                                </svg>
-                              )}
-                            </span>
-                            {extra.name}
-                          </span>
-                          <span className="text-muted-foreground">+₦{extra.price}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <p className="text-right text-sm text-muted-foreground mt-1">Cost: ₦{extrasCost}</p>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-foreground text-lg font-medium mb-2">Description</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {description}
+        
+          {/* Sheet Content - scrollable */}
+          <div className={`flex-1 overflow-y-auto ${responsivePx} pb-4 bg-black rounded-t-4xl`}>
+            
+          
+            {/* Title + Quantity */}
+            <div className="flex items-start justify-between mb-1 pt-4">
+              <div className="flex-1">
+                <h2 className="text-white text-2xl font-bold">{meal.name}</h2>
+                <p className="text-white/70 text-sm">
+                  Restaurant: {meal.restaurant.replace('From ', '')}
                 </p>
               </div>
-
-              {/* Note */}
-              <div className="mb-6">
-                <h3 className="text-foreground text-lg font-medium mb-2">Note</h3>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Input special requests, allergies etc."
-                  className="w-full h-28 bg-muted/20 border border-muted/40 rounded-xl p-3 text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50"
-                />
+              <div className="flex items-center gap-3 bg-white/10 rounded-full px-3 py-2">
+                <button
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-6 h-6 rounded-full border border-white/50 flex items-center justify-center text-white"
+                >
+                  −
+                </button>
+                <span className="text-white font-medium w-4 text-center">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(q => q + 1)}
+                  className="w-6 h-6 rounded-full border border-white/50 flex items-center justify-center text-white"
+                >
+                  +
+                </button>
               </div>
             </div>
-          )}
+
+            {/* Delivery Time */}
+            <div className="flex items-center gap-1 text-white/70 text-sm mb-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              <span>{meal.time}</span>
+            </div>
+
+            {/* Rating */}
+            <div className="flex gap-0.5 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <svg
+                  key={star}
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill={star <= (meal.rating || 4) ? '#FFD700' : 'none'}
+                  stroke="#FFD700"
+                  strokeWidth="2"
+                >
+                  <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
+                </svg>
+              ))}
+            </div>
+
+            {/* Expanded content - only visible when pulled up */}
+            {sheetExpanded && (
+              <div className="animate-fade-in">
+                {/* Sauce Selection */}
+                <div className="mb-4">
+                  <h3 className="text-white text-lg font-medium mb-2">Choose a sauce (required):</h3>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSauceDropdown(!showSauceDropdown)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-left flex items-center justify-between"
+                    >
+                      <span className={selectedSauce ? 'text-white' : 'text-white/60'}>
+                        {selectedSauce ? sauceOptions.find(s => s.id === selectedSauce)?.name : 'Select a sauce'}
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/60">
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    {showSauceDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-white/20 rounded-xl overflow-hidden z-10">
+                        {sauceOptions.map(sauce => (
+                          <button
+                            key={sauce.id}
+                            onClick={() => {
+                              setSelectedSauce(sauce.id);
+                              setShowSauceDropdown(false);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-white/10 ${
+                              selectedSauce === sauce.id ? 'bg-primary/30 text-primary' : 'text-white'
+                            }`}
+                          >
+                            <span>{sauce.name}</span>
+                            {sauce.price > 0 && <span className="text-white/60">+₦{sauce.price}</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-right text-sm text-white/60 mt-1">Cost: ₦{sauceCost}</p>
+                </div>
+
+                {/* Extras Selection */}
+                <div className="mb-6">
+                  <h3 className="text-white text-lg font-medium mb-2">Extras (Optional):</h3>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowExtrasDropdown(!showExtrasDropdown)}
+                      className="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-left flex items-center justify-between"
+                    >
+                      <span className={selectedExtras.length > 0 ? 'text-white' : 'text-white/60'}>
+                        {selectedExtras.length > 0
+                          ? `${selectedExtras.length} extra${selectedExtras.length > 1 ? 's' : ''} selected`
+                          : 'Select your extras'}
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/60">
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    {showExtrasDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-white/20 rounded-xl overflow-hidden z-10">
+                        {extrasOptions.map(extra => (
+                          <button
+                            key={extra.id}
+                            onClick={() => toggleExtra(extra.id)}
+                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-white/10 ${
+                              selectedExtras.includes(extra.id) ? 'bg-primary/30 text-primary' : 'text-white'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className={`w-4 h-4 rounded border flex items-center justify-center ${
+                                selectedExtras.includes(extra.id) ? 'bg-primary border-primary' : 'border-white/50'
+                              }`}>
+                                {selectedExtras.includes(extra.id) && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                  </svg>
+                                )}
+                              </span>
+                              {extra.name}
+                            </span>
+                            <span className="text-white/60">+₦{extra.price}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-right text-sm text-white/60 mt-1">Cost: ₦{extrasCost}</p>
+                </div>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="text-white text-lg font-medium mb-2">Description</h3>
+                  <p className="text-white/70 text-sm leading-relaxed">
+                    {description}
+                  </p>
+                </div>
+
+                {/* Note */}
+                <div className="mb-6">
+                  <h3 className="text-white text-lg font-medium mb-2">Note</h3>
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Input special requests, allergies etc."
+                    className="w-full h-28 bg-white/10 border border-white/20 rounded-xl p-3 text-white text-sm placeholder:text-white/50 resize-none focus:outline-none focus:border-primary/50"
+                  />
+                </div>
+              </div>
+            )}
+            </div>
         </div>
 
         {/* Bottom Buttons - always visible */}
-        <div className={`${responsivePx} pb-6 pt-3 flex gap-3 flex-shrink-0 bg-background`}>
+        <div className={`${responsivePx} pb-6 pt-3 flex gap-3 flex-shrink-0`}>
           <Button variant="primary" className="flex-1 rounded-xl">
             Add to Cart
           </Button>
