@@ -100,11 +100,12 @@ const MealDetails: React.FC = () => {
   return (
     <div className="w-full h-screen bg-background font-[var(--font-poppins)] flex flex-col overflow-hidden relative">
       {/* Food Image - fills the top portion */}
-      <div className="relative w-full flex-1 min-h-0">
+      <div className="relative w-full flex-1 min-h-0 bg-black">
+        <div className="absolute inset-0 bg-black/40" />
         <img
           src={meal.image}
           alt={meal.name}
-          className="w-130 h-130 object-cover"
+          className="relative w-130 h-130 object-cover"
         />
 
         {/* Header overlay: Back button + "Details" on same line */}
@@ -122,9 +123,6 @@ const MealDetails: React.FC = () => {
       {/* Bottom Sheet - black background, rounded top */}
       <div
         ref={sheetRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         className={`absolute left-0 right-0 bg-black rounded-t-4xl transition-all duration-300 ease-out flex flex-col ${
           sheetExpanded ? 'top-[15%] bottom-0' : 'top-[55%] bottom-0'
         }`}
@@ -133,12 +131,15 @@ const MealDetails: React.FC = () => {
         {/* Drag Handle + Price Bar + Content */}
         <div className="flex flex-col flex-1 min-h-0 text-white bg-primary rounded-t-4xl">
           
-          {/* Drag handle - line only, centered above */}
+          {/* Drag handle - line only, centered above; ONLY this area triggers slide */}
           <div
             className="flex-shrink-0 cursor-grab"
             onClick={() => setSheetExpanded(!sheetExpanded)}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <div className="flex justify-center pt-3 pb-2">
+            <div className="flex justify-center pt-3">
               <div className="w-24 h-2 bg-black rounded-full" />
             </div>
             {/* Price Bar - title left, price right, hugging edges */}
@@ -150,7 +151,7 @@ const MealDetails: React.FC = () => {
 
         
           {/* Sheet Content - scrollable */}
-          <div className={`flex-1 overflow-y-auto ${responsivePx} pb-4 bg-black rounded-t-4xl`}>
+          <div className={`flex-1 overflow-y-auto ${responsivePx} bg-black rounded-t-4xl`}>
             
           
             {/* Title + Quantity */}
@@ -161,19 +162,20 @@ const MealDetails: React.FC = () => {
                   Restaurant: {meal.restaurant.replace('From ', '')}
                 </p>
               </div>
-              <div className="flex items-center gap-3 bg-white/10 rounded-full px-3 py-2">
+
+              <div className="flex items-center gap-4 bg-white rounded-full px-3 py-3">
                 <button
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-6 h-6 rounded-full border border-white/50 flex items-center justify-center text-white"
+                  className="w-6 h-6 flex items-center justify-center"
                 >
-                  −
+                  <img src="/assets/Minus.png" alt="Decrease" className="w-4 h-4" />
                 </button>
-                <span className="text-white font-medium w-4 text-center">{quantity}</span>
+                <span className="text-black font-bold w-4 text-center">{quantity}</span>
                 <button
                   onClick={() => setQuantity(q => q + 1)}
-                  className="w-6 h-6 rounded-full border border-white/50 flex items-center justify-center text-white"
+                  className="w-6 h-6 flex items-center justify-center"
                 >
-                  +
+                  <img src="/assets/Plus.png" alt="Increase" className="w-4 h-4" />
                 </button>
               </div>
             </div>
