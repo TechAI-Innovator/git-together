@@ -75,16 +75,16 @@ const MealDetails: React.FC = () => {
         <img
           src={meal.image}
           alt={meal.name}
-          className="w-120 h-120 object-cover"
+          className="w-120 h-120 object-cover min-[450px]:w-[50rem] min-[450px]:h-[50rem] min-[450px]:object-cover"
         />
         {/* Dark gradient backdrop overlay */}
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+      </div>
 
-        {/* Header overlay: Back button + "Details" on same line */}
-        <div className={`absolute top-0 left-0 right-0 ${responsivePx} pt-10 flex items-center z-30`}>
-          <BackButton variant="map" to="/home" />
-          <h1 className="flex-1 text-center text-foreground text-3xl font-bold -ml-10">Details</h1>
-        </div>
+      {/* Header - sibling of sheet, higher z-index so it stays on top and clickable */}
+      <div className={`absolute top-0 left-0 right-0 ${responsivePx} pt-10 flex items-center z-[50]`}>
+        <BackButton variant="map" className="flex-shrink-0" />
+        <h1 className="flex-1 text-center text-foreground text-3xl font-bold -ml-10 pointer-events-none">Details</h1>
       </div>
 
       {/* Bottom Sheet */}
