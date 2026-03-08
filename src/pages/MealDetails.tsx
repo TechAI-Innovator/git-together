@@ -15,22 +15,6 @@ interface MealData {
   description?: string;
 }
 
-const sauceOptions = [
-  { id: 'none', name: 'No sauce', price: 0 },
-  { id: 'tomato', name: 'Tomato sauce', price: 200 },
-  { id: 'pepper', name: 'Pepper sauce', price: 300 },
-  { id: 'garlic', name: 'Garlic sauce', price: 250 },
-  { id: 'mayo', name: 'Mayonnaise', price: 150 },
-];
-
-const extrasOptions = [
-  { id: 'cheese', name: 'Extra cheese', price: 500 },
-  { id: 'chicken', name: 'Extra chicken', price: 800 },
-  { id: 'plantain', name: 'Fried plantain', price: 400 },
-  { id: 'coleslaw', name: 'Coleslaw', price: 300 },
-  { id: 'egg', name: 'Fried egg', price: 250 },
-];
-
 const sizeOptions = ['Small', 'Medium', 'Large'];
 
 const MealDetails: React.FC = () => {
@@ -39,11 +23,7 @@ const MealDetails: React.FC = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
-  const [selectedSauce, setSelectedSauce] = useState('');
-  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState('Small');
-  const [showSauceDropdown, setShowSauceDropdown] = useState(false);
-  const [showExtrasDropdown, setShowExtrasDropdown] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
   // Bottom sheet state
@@ -83,23 +63,10 @@ const MealDetails: React.FC = () => {
   }
 
   const basePrice = parseFloat(meal.price.replace(/[₦,]/g, ''));
-  const sauceCost = sauceOptions.find(s => s.id === selectedSauce)?.price || 0;
-  const extrasCost = selectedExtras.reduce((total, extraId) => {
-    const extra = extrasOptions.find(e => e.id === extraId);
-    return total + (extra?.price || 0);
-  }, 0);
-  const totalPrice = (basePrice + sauceCost + extrasCost) * quantity;
+  const totalPrice = basePrice * quantity;
 
   const description = meal.description ||
     "Crafted with a stone-baked crust, rich herb-infused sauce and a generous layer of melted cheese. Our pizza is loaded with fresh, high-quality toppings that deliver a rich and unforgettable flavor experience.";
-
-  const toggleExtra = (extraId: string) => {
-    setSelectedExtras(prev =>
-      prev.includes(extraId)
-        ? prev.filter(id => id !== extraId)
-        : [...prev, extraId]
-    );
-  };
 
   return (
     <div className="w-full h-screen bg-background font-[var(--font-poppins)] flex flex-col overflow-hidden relative">
@@ -108,15 +75,15 @@ const MealDetails: React.FC = () => {
         <img
           src={meal.image}
           alt={meal.name}
-          className="w-full h-full object-cover"
+          className="w-120 h-120 object-cover"
         />
         {/* Dark gradient backdrop overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
+        <div className="absolute inset-0 bg-black/50" />
 
         {/* Header overlay: Back button + "Details" on same line */}
         <div className={`absolute top-0 left-0 right-0 ${responsivePx} pt-10 flex items-center z-30`}>
-          <BackButton variant="map" />
-          <h1 className="flex-1 text-center text-foreground text-xl font-bold -ml-10">Details</h1>
+          <BackButton variant="map" to="/home" />
+          <h1 className="flex-1 text-center text-foreground text-3xl font-bold -ml-10">Details</h1>
         </div>
       </div>
 
@@ -155,11 +122,11 @@ const MealDetails: React.FC = () => {
             {/* Meal info card - mirroring Home meal card style */}
             <div className="flex items-start justify-between mb-1 pt-4">
               <div className="flex-1">
-                <h2 className="text-foreground text-2xl font-bold">{meal.name}</h2>
+                <h2 className="text-foreground text-2xl font-medium">{meal.name}</h2>
                 <p className="text-muted-foreground text-xs truncate">
                   Restaurant: {meal.restaurant.replace('From ', '')}
                 </p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 my-1 text-xs text-muted-foreground">
                   <img 
                     src="/assets/stopwatch 1-home.png" 
                     alt="Time" 
@@ -206,16 +173,16 @@ const MealDetails: React.FC = () => {
 
             {/* Size Options */}
             <div className="mb-4">
-              <h3 className="text-foreground text-lg font-medium mb-2">Size Options:</h3>
+              <h3 className="text-foreground text-lg font-light mb-2">Size Options:</h3>
               <div className="flex gap-3">
                 {sizeOptions.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`flex-1 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`flex-1 py-2 rounded-full text-xs font-light transition-all ${
                       selectedSize === size
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-transparent border border-muted text-muted-foreground'
+                        ? 'bg-primary border border-primary text-primary-foreground'
+                        : 'bg-transparent border border-primary text-muted-foreground'
                     }`}
                   >
                     {size}
@@ -227,108 +194,22 @@ const MealDetails: React.FC = () => {
             {/* Expanded content */}
             {sheetExpanded && (
               <div className="animate-fade-in">
-                {/* Sauce Selection */}
-                <div className="mb-4">
-                  <h3 className="text-foreground text-lg font-medium mb-2">Choose a sauce (required):</h3>
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowSauceDropdown(!showSauceDropdown)}
-                      className="w-full bg-muted/20 border border-muted/40 rounded-xl p-3 text-left flex items-center justify-between"
-                    >
-                      <span className={selectedSauce ? 'text-foreground' : 'text-muted-foreground'}>
-                        {selectedSauce ? sauceOptions.find(s => s.id === selectedSauce)?.name : 'Select a sauce'}
-                      </span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    </button>
-                    {showSauceDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-muted/40 rounded-xl overflow-hidden z-10">
-                        {sauceOptions.map(sauce => (
-                          <button
-                            key={sauce.id}
-                            onClick={() => {
-                              setSelectedSauce(sauce.id);
-                              setShowSauceDropdown(false);
-                            }}
-                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-muted/20 ${
-                              selectedSauce === sauce.id ? 'bg-primary/30 text-primary' : 'text-foreground'
-                            }`}
-                          >
-                            <span>{sauce.name}</span>
-                            {sauce.price > 0 && <span className="text-muted-foreground">+₦{sauce.price}</span>}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-right text-sm text-muted-foreground mt-1">Cost: ₦{sauceCost}</p>
-                </div>
-
-                {/* Extras Selection */}
-                <div className="mb-6">
-                  <h3 className="text-foreground text-lg font-medium mb-2">Extras (Optional):</h3>
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowExtrasDropdown(!showExtrasDropdown)}
-                      className="w-full bg-muted/20 border border-muted/40 rounded-xl p-3 text-left flex items-center justify-between"
-                    >
-                      <span className={selectedExtras.length > 0 ? 'text-foreground' : 'text-muted-foreground'}>
-                        {selectedExtras.length > 0
-                          ? `${selectedExtras.length} extra${selectedExtras.length > 1 ? 's' : ''} selected`
-                          : 'Select your extras'}
-                      </span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    </button>
-                    {showExtrasDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-muted/40 rounded-xl overflow-hidden z-10">
-                        {extrasOptions.map(extra => (
-                          <button
-                            key={extra.id}
-                            onClick={() => toggleExtra(extra.id)}
-                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center hover:bg-muted/20 ${
-                              selectedExtras.includes(extra.id) ? 'bg-primary/30 text-primary' : 'text-foreground'
-                            }`}
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className={`w-4 h-4 rounded border flex items-center justify-center ${
-                                selectedExtras.includes(extra.id) ? 'bg-primary border-primary' : 'border-muted'
-                              }`}>
-                                {selectedExtras.includes(extra.id) && (
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                                    <path d="M20 6L9 17l-5-5" />
-                                  </svg>
-                                )}
-                              </span>
-                              {extra.name}
-                            </span>
-                            <span className="text-muted-foreground">+₦{extra.price}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-right text-sm text-muted-foreground mt-1">Cost: ₦{extrasCost}</p>
-                </div>
-
                 {/* Description */}
                 <div className="mb-6">
-                  <h3 className="text-foreground text-lg font-medium mb-2">Description</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <h3 className="text-foreground text-lg font-light mb-2">Description</h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
                     {description}
                   </p>
                 </div>
 
                 {/* Note */}
                 <div className="mb-6">
-                  <h3 className="text-foreground text-lg font-medium mb-2">Note</h3>
+                  <h3 className="text-foreground text-lg font-light mb-2">Note</h3>
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Input special requests, allergies etc."
-                    className="w-full h-28 bg-muted/20 border border-muted/40 rounded-xl p-3 text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50"
+                    className="w-full h-28 bg-muted/35 rounded-xl p-3 text-foreground text-xs placeholder:text-muted-foreground/50 resize-none focus:outline-none"
                   />
                 </div>
               </div>
@@ -340,12 +221,12 @@ const MealDetails: React.FC = () => {
         <div className={`${responsivePx} pb-6 pt-3 flex gap-3 flex-shrink-0`}>
           <Button
             variant="primary"
-            className={`flex-1 rounded-xl ${addedToCart ? '!bg-transparent border-2 border-primary !text-primary' : ''}`}
+            className={`flex-1 ${addedToCart ? '!bg-transparent border-2 border-primary !text-primary' : ''}`}
             onClick={() => setAddedToCart(!addedToCart)}
           >
             Add to Cart
           </Button>
-          <Button variant="accent" className="flex-1 rounded-xl">
+          <Button variant="accent" className="flex-1">
             Order now
           </Button>
         </div>
