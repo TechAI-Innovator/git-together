@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import type { MenuItemWithRestaurant } from '../lib/api';
 import { responsivePx, responsivePt } from '../constants/responsive';
+import SearchBar from '../components/SearchBar';
 
 interface UserProfile {
   first_name?: string;
@@ -168,42 +169,7 @@ const Home: React.FC = () => {
 
       {/* 2nd section - Search */}
       <div className={`${responsivePx} mt-4`}>
-        <div className="relative rounded-full overflow-hidden">
-          {/* Orange background layer */}
-          <div className="absolute inset-0 bg-primary/20" />
-          
-          {/* Repeating logo pattern overlay - rotated with offset rows */}
-          <div 
-            className="absolute opacity-20 pointer-events-none"
-            style={{
-              width: '800%',
-              height: '800%',
-              top: '-350%',
-              left: '-350%',
-              transform: 'rotate(-35deg)',
-              backgroundImage: `
-                url('/logo/Fast bite transparent I.png'),
-                url('/logo/Fast bite transparent I.png')
-              `,
-              backgroundSize: '20px',
-              backgroundRepeat: 'space',
-            }}
-          />
-          
-          {/* Content layer */}
-          <div className="relative flex items-center px-4 py-3 gap-3">
-            <img 
-              src="/assets/search white.png" 
-              alt="Search" 
-              className="w-5 h-5"
-            />
-            <input 
-              type="text" 
-              placeholder="Search" 
-              className="bg-transparent text-foreground placeholder:text-muted-foreground text-base flex-1 outline-none"
-            />
-          </div>
-        </div>
+        <SearchBar />
       </div>
 
       {/* 3rd section - Categories */}
