@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import type { MenuItemWithRestaurant } from '../lib/api';
+import { formatDeliveryTime } from '../lib/formatDeliveryTime';
 import { responsivePx, responsivePt } from '../constants/responsive';
 import SearchBar from '../components/SearchBar';
 
@@ -27,17 +28,6 @@ const PLACEHOLDER_IMAGES = [
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', // Salad
   'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop', // BBQ
 ];
-
-// Helper to format delivery time
-const formatDeliveryTime = (minutes?: number): string => {
-  if (!minutes) return '30 mins';
-  if (minutes >= 60) {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hrs} hr ${mins} mins` : `${hrs} hr`;
-  }
-  return `${minutes} mins`;
-};
 
 const Home: React.FC = () => {
   const navigate = useNavigate();

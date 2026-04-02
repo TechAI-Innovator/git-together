@@ -3,9 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Restaurant } from '../lib/api';
 import BackButton from '../components/BackButton';
+import ResendOverlay from '../components/ResendOverlay';
 import SearchBar from '../components/SearchBar';
+import { operatingHoursMessage } from '../constants/operatingHours';
 import { responsivePx } from '../constants/responsive';
+import {
+  closingTimeForDisplay,
+  formatRatingDisplay,
+  isOpenForDisplay,
+  resolveRating,
+} from '../lib/restaurantDisplay';
 
+/** Always listed first; API rows with other ids are appended (see fetch). */
 const placeholderRestaurants: Restaurant[] = [
   {
     id: '1',
@@ -36,44 +45,6 @@ const placeholderRestaurants: Restaurant[] = [
   },
 ];
 
-const operatingHours = {
-  weekdays: 'Mon - Thurs: 8:00 AM - 10:00 PM',
-  weekend: 'Fri - Sat: 8:00 AM - 11:00 PM',
-  sunday: 'Sun: Closed',
-};
-
-/** Pool when API omits rating — mix of whole and half steps (e.g. 3.5, 4) */
-const RATING_POOL = [3, 3.5, 4, 4.5, 5] as const;
-
-function poolIndexFromId(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) {
-    h = (h + id.charCodeAt(i)) % RATING_POOL.length;
-  }
-  return h % RATING_POOL.length;
-}
-
-function resolveRating(r: Restaurant): number {
-  if (r.rating != null && r.rating > 0) return r.rating;
-  return RATING_POOL[poolIndexFromId(String(r.id))];
-}
-
-function formatRatingDisplay(r: number): string {
-  return Number.isInteger(r) ? String(r) : r.toFixed(1);
-}
-
-/** Stable mix of open / closed per id (~half each) */
-function isOpenForDisplay(id: string): boolean {
-  return poolIndexFromId(id) % 2 === 0;
-}
-
-const CLOSING_TIMES = ['9:00 PM', '10:00 PM', '10:30 PM', '11:00 PM'] as const;
-
-/** Same row as closed “Opens at…” — stable closing time per id */
-function closingTimeForDisplay(id: string): string {
-  return CLOSING_TIMES[poolIndexFromId(id) % CLOSING_TIMES.length];
-}
-
 const Restaurants = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState<Restaurant[]>(placeholderRestaurants);
@@ -86,13 +57,17 @@ const Restaurants = () => {
       try {
         const response = await api.getRestaurants(20, 0);
         if (response.data && response.data.length > 0) {
-          setRestaurants(
-            response.data.map((r) => ({
+          const placeholderIds = new Set(
+            placeholderRestaurants.map((r) => String(r.id))
+          );
+          const fromApi = response.data
+            .filter((r) => !placeholderIds.has(String(r.id)))
+            .map((r) => ({
               ...r,
               rating: resolveRating(r),
               is_open: isOpenForDisplay(String(r.id)),
-            }))
-          );
+            }));
+          setRestaurants([...placeholderRestaurants, ...fromApi]);
         }
       } catch (error) {
         console.error('Error fetching restaurants:', error);
@@ -113,7 +88,6 @@ const Restaurants = () => {
   const filteredRestaurants = restaurants.filter(r =>
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -232,24 +206,21 @@ const Restaurants = () => {
               </div>
             </div>
 
-            {/* Operating Hours Tooltip */}
-            {showTooltip === restaurant.id && (
-              <div className="absolute left-4 top-40 min-[450px]:top-44 bg-zinc-800 rounded-xl p-4 shadow-lg z-10 min-w-[220px]">
-                <div className="mb-2 flex items-center gap-2">
-                  <img src="/assets/info 1.svg" alt="" className="h-4 w-4 opacity-80" />
-                  <span className="font-semibold text-foreground">Operating hours</span>
-                </div>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>{operatingHours.weekdays}</p>
-                  <p>{operatingHours.weekend}</p>
-                  <p>{operatingHours.sunday}</p>
-                </div>
-              </div>
-            )}
           </div>
           );
         })}
       </div>
+      
+      {/* Operating Hours Overlay */}
+      <ResendOverlay
+        visible={showTooltip !== null}
+        message={operatingHoursMessage}
+        onClose={() => setShowTooltip(null)}
+        type="warning"
+        iconSrc="/assets/info 1.svg"
+        title="Operating hours"
+        align="left"
+      />
     </div>
   );
 };
