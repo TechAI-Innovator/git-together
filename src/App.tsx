@@ -59,6 +59,11 @@ function App() {
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/meal/:id" element={<ProtectedRoute><MealDetails /></ProtectedRoute>} />
           <Route path="/restaurants" element={<ProtectedRoute><Restaurants /></ProtectedRoute>} />
+          {/* Nested meal under restaurant — URL stays under /restaurant/... */}
+          <Route
+            path="/restaurant/:restaurantId/meal/:mealId"
+            element={<ProtectedRoute><MealDetails /></ProtectedRoute>}
+          />
           <Route path="/restaurant/:id" element={<ProtectedRoute><RestaurantProfile /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />

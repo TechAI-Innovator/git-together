@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import { responsivePx } from '../constants/responsive';
 import Button from '../components/Button';
 import BackButton from '../components/BackButton';
@@ -17,9 +17,26 @@ interface MealData {
 
 const sizeOptions = ['Small', 'Medium', 'Large'];
 
+/** Home passes meal as state directly; restaurant flow passes { meal, restaurant }. */
+function parseMealState(state: unknown): MealData | null {
+  if (!state || typeof state !== 'object') return null;
+  if ('meal' in state && state.meal && typeof state.meal === 'object') {
+    return state.meal as MealData;
+  }
+  return state as MealData;
+}
+
 const MealDetails: React.FC = () => {
   const location = useLocation();
-  const meal = location.state as MealData | null;
+  const { restaurantId } = useParams<{ restaurantId?: string; mealId?: string }>();
+
+  const meal = useMemo(
+    () => parseMealState(location.state),
+    [location.state]
+  );
+
+  /** Under /restaurant/:id/meal/:id — back goes to restaurant profile (history), not Home */
+  const fromRestaurantContext = Boolean(restaurantId);
 
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
@@ -83,7 +100,11 @@ const MealDetails: React.FC = () => {
 
       {/* Header - sibling of sheet, higher z-index so it stays on top and clickable */}
       <div className={`absolute top-0 left-0 right-0 z-[50] ${responsivePx} pt-10`}>
-        <BackButton variant="map" title="Details" to="/home" />
+        <BackButton
+          variant="map"
+          title="Details"
+          {...(fromRestaurantContext ? {} : { to: '/home' })}
+        />
       </div>
 
       {/* Bottom Sheet */}
