@@ -16,6 +16,8 @@ interface MealData {
 }
 
 const sizeOptions = ['Small', 'Medium', 'Large'];
+const sauceOptions = ['Stew', 'Vegetable sauce', 'Chicken sauce'];
+const extrasOptions = ['Extra cheese', 'Plantain', 'Coleslaw'];
 
 /** Home passes meal as state directly; restaurant flow passes { meal, restaurant }. */
 function parseMealState(state: unknown): MealData | null {
