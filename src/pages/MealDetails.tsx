@@ -43,6 +43,10 @@ const MealDetails: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
   const [selectedSize, setSelectedSize] = useState('Small');
+  const [selectedSauce, setSelectedSauce] = useState('');
+  const [sauceOpen, setSauceOpen] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState('');
+  const [extrasOpen, setExtrasOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
   // Bottom sheet state
