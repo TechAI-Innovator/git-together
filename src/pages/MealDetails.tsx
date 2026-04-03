@@ -16,6 +16,8 @@ interface MealData {
 }
 
 const sizeOptions = ['Small', 'Medium', 'Large'];
+const sauceOptions = ['Stew', 'Vegetable sauce', 'Chicken sauce'];
+const extrasOptions = ['Extra cheese', 'Plantain', 'Coleslaw'];
 
 /** Home passes meal as state directly; restaurant flow passes { meal, restaurant }. */
 function parseMealState(state: unknown): MealData | null {
@@ -41,6 +43,10 @@ const MealDetails: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
   const [selectedSize, setSelectedSize] = useState('Small');
+  const [selectedSauce, setSelectedSauce] = useState('');
+  const [sauceOpen, setSauceOpen] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState('');
+  const [extrasOpen, setExtrasOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
   // Bottom sheet state
@@ -191,27 +197,90 @@ const MealDetails: React.FC = () => {
               ))}
             </div>
 
-            {/* Size Options */}
-            <div className="mb-4">
-              <h3 className="text-foreground text-lg font-light mb-2">Size Options:</h3>
-              <div className="flex gap-3">
-                {sizeOptions.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`flex-1 py-2 rounded-full text-xs font-light transition-all ${
-                      selectedSize === size
-                        ? 'bg-primary border border-primary text-primary-foreground'
-                        : 'bg-transparent border border-primary text-muted-foreground'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {fromRestaurantContext ? (
+              /* Sauce & Extras dropdowns for restaurant flow */
+              <>
+                {/* Sauce dropdown */}
+                <div className="mb-2">
+                  <h3 className="text-foreground text-lg font-light mb-2">Choose a sauce (required):</h3>
+                  <div className="relative">
+                    <button
+                      onClick={() => { setSauceOpen(!sauceOpen); setExtrasOpen(false); }}
+                      className="w-full flex items-center justify-between border-b border-muted-foreground/30 py-3 text-sm"
+                    >
+                      <span className={selectedSauce ? 'text-foreground' : 'text-muted-foreground/50'}>
+                        {selectedSauce || 'Select a sauce'}
+                      </span>
+                      <img src="/assets/down-arrow.svg" alt="" className={`w-4 h-4 transition-transform ${sauceOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {sauceOpen && (
+                      <div className="bg-muted/35 rounded-xl mt-1 overflow-hidden">
+                        {sauceOptions.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => { setSelectedSauce(s); setSauceOpen(false); }}
+                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-right text-xs text-muted-foreground mt-1">Cost: ₦0</p>
+                </div>
 
-            {/* Expanded content */}
+                {/* Extras dropdown */}
+                <div className="mb-4">
+                  <h3 className="text-foreground text-lg font-light mb-2">Extras (Optional):</h3>
+                  <div className="relative">
+                    <button
+                      onClick={() => { setExtrasOpen(!extrasOpen); setSauceOpen(false); }}
+                      className="w-full flex items-center justify-between border-b border-muted-foreground/30 py-3 text-sm"
+                    >
+                      <span className={selectedExtras ? 'text-foreground' : 'text-muted-foreground/50'}>
+                        {selectedExtras || 'Select your extras'}
+                      </span>
+                      <img src="/assets/down-arrow.svg" alt="" className={`w-4 h-4 transition-transform ${extrasOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {extrasOpen && (
+                      <div className="bg-muted/35 rounded-xl mt-1 overflow-hidden">
+                        {extrasOptions.map((e) => (
+                          <button
+                            key={e}
+                            onClick={() => { setSelectedExtras(e); setExtrasOpen(false); }}
+                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-right text-xs text-muted-foreground mt-1">Cost: ₦0</p>
+                </div>
+              </>
+            ) : (
+              /* Size options for home flow */
+              <div className="mb-4">
+                <h3 className="text-foreground text-lg font-light mb-2">Size Options:</h3>
+                <div className="flex gap-3">
+                  {sizeOptions.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`flex-1 py-2 rounded-full text-xs font-light transition-all ${
+                        selectedSize === size
+                          ? 'bg-primary border border-primary text-primary-foreground'
+                          : 'bg-transparent border border-primary text-muted-foreground'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {sheetExpanded && (
               <div className="animate-fade-in">
                 {/* Description */}
