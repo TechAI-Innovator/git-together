@@ -19,6 +19,19 @@ const sizeOptions = ['Small', 'Medium', 'Large'];
 const sauceOptions = ['Stew', 'Vegetable sauce', 'Chicken sauce'];
 const extrasOptions = ['Extra cheese', 'Plantain', 'Coleslaw'];
 
+/** Stable ₦ amount per meal + option (feels random, doesn’t change on re-render). */
+function optionPriceNaira(label: string, mealId: string, kind: 'sauce' | 'extra'): number {
+  let h = 0;
+  const str = `${kind}|${mealId}|${label}`;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 33 + str.charCodeAt(i)) >>> 0;
+  }
+  if (kind === 'sauce') {
+    return 200 + (h % 501);
+  }
+  return 150 + (h % 451);
+}
+
 /** Home passes meal as state directly; restaurant flow passes { meal, restaurant }. */
 function parseMealState(state: unknown): MealData | null {
   if (!state || typeof state !== 'object') return null;
@@ -66,16 +79,47 @@ const MealDetails: React.FC = () => {
     dragCurrentY.current = e.touches[0].clientY;
   }, []);
 
+  const collapseSheet = useCallback(() => {
+    setSheetExpanded(false);
+    setSauceOpen(false);
+    setExtrasOpen(false);
+  }, []);
+
+  const expandSheet = useCallback(() => {
+    setSheetExpanded(true);
+  }, []);
+
+  const restaurantDropdownOpen =
+    fromRestaurantContext && sheetExpanded && (sauceOpen || extrasOpen);
+
+  const mealIdForPricing = meal?.id ?? '';
+
+  const saucePriceMap = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const s of sauceOptions) {
+      m[s] = optionPriceNaira(s, mealIdForPricing, 'sauce');
+    }
+    return m;
+  }, [mealIdForPricing]);
+
+  const extrasPriceMap = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const e of extrasOptions) {
+      m[e] = optionPriceNaira(e, mealIdForPricing, 'extra');
+    }
+    return m;
+  }, [mealIdForPricing]);
+
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
     isDragging.current = false;
     const diff = dragStartY.current - dragCurrentY.current;
     if (diff > 50) {
-      setSheetExpanded(true);
+      expandSheet();
     } else if (diff < -50) {
-      setSheetExpanded(false);
+      collapseSheet();
     }
-  }, []);
+  }, [expandSheet, collapseSheet]);
 
   if (!meal) {
     return (
@@ -86,7 +130,11 @@ const MealDetails: React.FC = () => {
   }
 
   const basePrice = parseFloat(meal.price.replace(/[₦,]/g, ''));
-  const totalPrice = basePrice * quantity;
+  const selectedSaucePrice = selectedSauce ? saucePriceMap[selectedSauce] ?? 0 : 0;
+  const selectedExtrasPrice = selectedExtras ? extrasPriceMap[selectedExtras] ?? 0 : 0;
+  const totalPrice =
+    basePrice * quantity +
+    (fromRestaurantContext ? selectedSaucePrice + selectedExtrasPrice : 0);
 
   const description = meal.description ||
     "Crafted with a stone-baked crust, rich herb-infused sauce and a generous layer of melted cheese. Our pizza is loaded with fresh, high-quality toppings that deliver a rich and unforgettable flavor experience.";
@@ -127,7 +175,7 @@ const MealDetails: React.FC = () => {
           {/* Drag handle area */}
           <div
             className="flex-shrink-0 cursor-grab"
-            onClick={() => setSheetExpanded(!sheetExpanded)}
+            onClick={() => (sheetExpanded ? collapseSheet() : expandSheet())}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -142,8 +190,16 @@ const MealDetails: React.FC = () => {
             </div>
           </div>
 
-          {/* Sheet Content - scrollable */}
-          <div className={`flex-1 overflow-y-auto ${responsivePx} bg-background rounded-t-4xl`}>
+          {/* Sheet content: restaurant flow locks scroll + sauce/extras until sheet is expanded */}
+          <div
+            className={`flex-1 min-h-0 ${responsivePx} bg-background rounded-t-4xl ${
+              fromRestaurantContext && !sheetExpanded
+                ? 'overflow-y-hidden'
+                : restaurantDropdownOpen
+                  ? 'overflow-visible'
+                  : 'overflow-y-auto'
+            }`}
+          >
             
             {/* Meal info card - mirroring Home meal card style */}
             <div className="flex items-start justify-between mb-1 pt-4">
@@ -181,7 +237,7 @@ const MealDetails: React.FC = () => {
             </div>
 
             {/* Rating */}
-            <div className="flex gap-0.5 mb-4">
+            <div className="flex gap-0.5 mb-5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <svg
                   key={star}
@@ -198,68 +254,119 @@ const MealDetails: React.FC = () => {
             </div>
 
             {fromRestaurantContext ? (
-              /* Sauce & Extras dropdowns for restaurant flow */
-              <>
-                {/* Sauce dropdown */}
+              <div
+                className={
+                  !sheetExpanded
+                    ? 'pointer-events-none select-none opacity-50'
+                    : undefined
+                }
+                aria-hidden={!sheetExpanded}
+              >
+                {/* Sauce & extras — same layout; inactive until sheet expanded (scroll also locked above) */}
                 <div className="mb-2">
                   <h3 className="text-foreground text-lg font-light mb-2">Choose a sauce (required):</h3>
-                  <div className="relative">
+                  <div className={`relative ${sauceOpen ? 'z-40' : 'z-0'}`}>
                     <button
-                      onClick={() => { setSauceOpen(!sauceOpen); setExtrasOpen(false); }}
-                      className="w-full flex items-center justify-between border-b border-muted-foreground/30 py-3 text-sm"
+                      type="button"
+                      tabIndex={sheetExpanded ? 0 : -1}
+                      onClick={() => {
+                        if (!sheetExpanded) return;
+                        setSauceOpen(!sauceOpen);
+                        setExtrasOpen(false);
+                      }}
+                      className="relative z-10 flex w-full items-center justify-between rounded-lg border border-muted-foreground/40 bg-background p-3 text-sm"
                     >
                       <span className={selectedSauce ? 'text-foreground' : 'text-muted-foreground/50'}>
                         {selectedSauce || 'Select a sauce'}
                       </span>
-                      <img src="/assets/down-arrow.svg" alt="" className={`w-4 h-4 transition-transform ${sauceOpen ? 'rotate-180' : ''}`} />
+                      <img src="/assets/down-arrow.svg" alt="" className={`h-4 w-4 transition-transform ${sauceOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    {sauceOpen && (
-                      <div className="bg-muted/35 rounded-xl mt-1 overflow-hidden">
+                    {sauceOpen && sheetExpanded && (
+                      <div
+                        className="absolute left-0 right-0 top-full z-50 flex flex-col gap-7 rounded-lg border border-muted-foreground/40 bg-background py-7 pl-3 pr-3 shadow-lg"
+                        role="listbox"
+                      >
                         {sauceOptions.map((s) => (
                           <button
                             key={s}
-                            onClick={() => { setSelectedSauce(s); setSauceOpen(false); }}
-                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                            type="button"
+                            role="option"
+                            onClick={() => {
+                              setSelectedSauce(s);
+                              setSauceOpen(false);
+                            }}
+                            className="flex w-full items-center justify-between gap-3 bg-transparent text-left text-sm text-foreground transition-opacity hover:opacity-80"
                           >
-                            {s}
+                            <span className="min-w-0">{s}</span>
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              ₦{saucePriceMap[s].toLocaleString()}
+                            </span>
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  <p className="text-right text-xs text-muted-foreground mt-1">Cost: ₦0</p>
+                  <p
+                    className={`mt-1 text-right text-xs ${
+                      selectedSauce ? 'font-medium text-green-500' : 'text-muted-foreground'
+                    }`}
+                  >
+                    Cost: ₦{selectedSauce ? selectedSaucePrice.toLocaleString() : '0'}
+                  </p>
                 </div>
 
-                {/* Extras dropdown */}
                 <div className="mb-4">
                   <h3 className="text-foreground text-lg font-light mb-2">Extras (Optional):</h3>
-                  <div className="relative">
+                  <div className={`relative ${extrasOpen ? 'z-40' : 'z-0'}`}>
                     <button
-                      onClick={() => { setExtrasOpen(!extrasOpen); setSauceOpen(false); }}
-                      className="w-full flex items-center justify-between border-b border-muted-foreground/30 py-3 text-sm"
+                      type="button"
+                      tabIndex={sheetExpanded ? 0 : -1}
+                      onClick={() => {
+                        if (!sheetExpanded) return;
+                        setExtrasOpen(!extrasOpen);
+                        setSauceOpen(false);
+                      }}
+                      className="relative z-10 flex w-full items-center justify-between rounded-lg border border-muted-foreground/40 bg-background p-3 text-sm"
                     >
                       <span className={selectedExtras ? 'text-foreground' : 'text-muted-foreground/50'}>
                         {selectedExtras || 'Select your extras'}
                       </span>
-                      <img src="/assets/down-arrow.svg" alt="" className={`w-4 h-4 transition-transform ${extrasOpen ? 'rotate-180' : ''}`} />
+                      <img src="/assets/down-arrow.svg" alt="" className={`h-4 w-4 transition-transform ${extrasOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    {extrasOpen && (
-                      <div className="bg-muted/35 rounded-xl mt-1 overflow-hidden">
+                    {extrasOpen && sheetExpanded && (
+                      <div
+                        className="absolute left-0 right-0 top-full z-50 flex flex-col gap-7 rounded-lg border border-muted-foreground/40 bg-background py-7 pl-3 pr-3 shadow-lg"
+                        role="listbox"
+                      >
                         {extrasOptions.map((e) => (
                           <button
                             key={e}
-                            onClick={() => { setSelectedExtras(e); setExtrasOpen(false); }}
-                            className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                            type="button"
+                            role="option"
+                            onClick={() => {
+                              setSelectedExtras(e);
+                              setExtrasOpen(false);
+                            }}
+                            className="flex w-full items-center justify-between gap-3 bg-transparent text-left text-sm text-foreground transition-opacity hover:opacity-80"
                           >
-                            {e}
+                            <span className="min-w-0">{e}</span>
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              ₦{extrasPriceMap[e].toLocaleString()}
+                            </span>
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  <p className="text-right text-xs text-muted-foreground mt-1">Cost: ₦0</p>
+                  <p
+                    className={`mt-1 text-right text-xs ${
+                      selectedExtras ? 'font-medium text-green-500' : 'text-muted-foreground'
+                    }`}
+                  >
+                    Cost: ₦{selectedExtras ? selectedExtrasPrice.toLocaleString() : '0'}
+                  </p>
                 </div>
-              </>
+              </div>
             ) : (
               /* Size options for home flow */
               <div className="mb-4">
