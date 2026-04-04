@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { responsivePx } from '../constants/responsive';
 import Button from '../components/Button';
 import BackButton from '../components/BackButton';
-import ResendOverlay from '../components/ResendOverlay';
+
 
 interface MealData {
   id: string;
