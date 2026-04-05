@@ -289,9 +289,9 @@ const MealDetails: React.FC = () => {
           <button
             type="button"
             onClick={() => setDeleteTargetIdx(idx)}
-            className="mt-1 flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+            className="mt-1 flex items-center gap-2 rounded-lg bg-primary p-3 text-sm font-medium text-primary-foreground"
           >
-            <img src="/assets/delete-white-1.svg" alt="Delete" className="h-4 w-4" />
+            <img src="/assets/delete - white 1.svg" alt="Delete" className="h-4 w-4" />
             Remove
           </button>
         )}
@@ -471,22 +471,22 @@ const MealDetails: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTargetIdx(null)}>
           <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
           <div
-            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-8 py-6 shadow-lg backdrop-blur-md"
+            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-foreground text-base font-medium">Delete serving?</p>
-            <div className="flex gap-4">
+            <div className="flex w-full min-w-[200px] gap-12">
               <button
                 type="button"
                 onClick={confirmDeleteServing}
-                className="rounded-lg bg-green-500 px-6 py-2 text-sm font-semibold text-foreground transition-opacity hover:opacity-80"
+                className="flex-1 rounded-md bg-green-400 py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
               >
                 Yes
               </button>
               <button
                 type="button"
                 onClick={() => setDeleteTargetIdx(null)}
-                className="rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
               >
                 No
               </button>

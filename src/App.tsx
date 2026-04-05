@@ -25,6 +25,7 @@ import MealDetails from './pages/MealDetails';
 import Restaurants from './pages/Restaurants';
 import RestaurantProfile from './pages/RestaurantProfile';
 import Wallet from './pages/Wallet';
+import Discover from './pages/Discover';
 import Support from './pages/Support';
 import Deposit from './pages/Deposit';
 import DepositSuccess from './pages/DepositSuccess';
@@ -66,6 +67,7 @@ function App() {
           />
           <Route path="/restaurant/:id" element={<ProtectedRoute><RestaurantProfile /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+          <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
           <Route path="/deposit" element={<ProtectedRoute><Deposit /></ProtectedRoute>} />
           <Route path="/deposit-success" element={<ProtectedRoute><DepositSuccess /></ProtectedRoute>} />
