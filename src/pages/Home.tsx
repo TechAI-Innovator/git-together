@@ -6,6 +6,7 @@ import { formatDeliveryTime } from '../lib/formatDeliveryTime';
 import { responsivePx, responsivePt } from '../constants/responsive';
 import SearchBar from '../components/SearchBar';
 import BottomNav from '../components/BottomNav';
+import MenuOverlay from '../components/MenuOverlay';
 
 interface UserProfile {
   first_name?: string;
