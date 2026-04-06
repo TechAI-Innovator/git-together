@@ -126,26 +126,12 @@ const Home: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Expanded menu options */}
-          <div className={`flex items-center gap-3 transition-all duration-300 overflow-hidden ${menuOpen ? 'max-w-[6rem] opacity-100' : 'max-w-0 opacity-0'}`}>
-            <button className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-              <img src="/assets/notification.png" alt="Notifications" className="w-6 h-6" />
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-              <img src="/assets/shopping-cart-home.png" alt="Cart" className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Menu toggle button */}
-          <button
-            onClick={() => setMenuOpen(prev => !prev)}
-            className="w-9 h-9 rounded-full bg-primary flex items-center justify-center flex-shrink-0 transition-transform duration-300"
-            style={{ transform: menuOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-          >
-            <img src="/assets/more 1.svg" alt="Menu" className="w-4 h-4" />
-          </button>
-        </div>
+        <button
+          onClick={() => setMenuOpen(true)}
+          className="w-9 h-9 rounded-full bg-primary flex items-center justify-center flex-shrink-0"
+        >
+          <img src="/assets/more 1.svg" alt="Menu" className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Spacer for fixed header */}
