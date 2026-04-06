@@ -273,6 +273,7 @@ const Home: React.FC = () => {
         )}
       </div>
 
+      <MenuOverlay visible={menuOpen} onClose={() => setMenuOpen(false)} user={user} />
       <BottomNav />
     </div>
   );
