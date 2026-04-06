@@ -5,7 +5,9 @@ import BottomNav from './BottomNav';
 interface MenuOverlayProps {
   visible: boolean;
   onClose: () => void;
-  user?: { first_name?: string; last_name?: string; email?: string } | null;
+  /** Same source as Home header avatar */
+  profileImageSrc: string;
+  user?: { first_name?: string; last_name?: string; address?: string } | null;
 }
 
 const MENU_ITEMS = [
@@ -18,25 +20,34 @@ const MENU_ITEMS = [
   { label: 'Logout', icon: '/assets/exit 1.svg', path: '/logout', isLogout: true },
 ];
 
-const MenuOverlay: React.FC<MenuOverlayProps> = ({ visible, onClose, user }) => {
+const MenuOverlay: React.FC<MenuOverlayProps> = ({
+  visible,
+  onClose,
+  user,
+  profileImageSrc,
+}) => {
   const navigate = useNavigate();
 
   if (!visible) return null;
 
   const displayName = user
     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Guest'
-    : 'Guest';
-  const displayEmail = 'johndoe543@gmail.com';
+    : 'Loading...';
+  const displaySubtitle = user?.address || 'No address set';
 
   const handleItemClick = (path: string) => {
     onClose();
-    navigate(path);
+    if (path === '/location') {
+      navigate(path, { state: { fromMenu: true } });
+    } else {
+      navigate(path);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-background">
       {/* Close button */}
-      <div className={`${responsivePx} pt-6 pb-2`}>
+      <div className={`${responsivePx} pt-6 pb-2 my-4`}>
         <button
           type="button"
           onClick={onClose}
@@ -52,45 +63,47 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ visible, onClose, user }) => 
         <button
           type="button"
           onClick={() => handleItemClick('/profile')}
-          className="flex w-full items-center justify-between rounded-xl border border-muted/20 px-4 py-4 mb-3"
-          style={{ backgroundColor: 'hsl(0, 0%, 7%)' }}
+          className="flex w-full items-center justify-between rounded-xl border border-muted/20 px-4 py-3 mb-4"
+          style={{ backgroundColor: 'hsl(0, 0%, 15%)' }}
         >
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 overflow-hidden rounded-full">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
               <img
-                src="/assets/stefan-stefancik-QXevDflbl8A-unsplash 1.png"
+                src={profileImageSrc}
                 alt="Profile"
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="text-left">
-              <p className="text-foreground font-semibold text-base">{displayName}</p>
-              <p className="text-muted-foreground text-xs">{displayEmail}</p>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="truncate text-base font-semibold text-foreground">{displayName}</p>
+              <p className="truncate text-xs text-muted-foreground" title={displaySubtitle}>
+                {displaySubtitle}
+              </p>
             </div>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-            <img src="/assets/Back.svg" alt="Go" className="h-4 w-4 rotate-180" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary">
+            <img src="/assets/Back.svg" alt="Go" className="h-3 w-3 rotate-180" />
           </div>
         </button>
 
         {/* Menu items */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {MENU_ITEMS.map((item) => (
             <button
               key={item.label}
               type="button"
               onClick={() => handleItemClick(item.path)}
-              className="flex w-full items-center justify-between rounded-xl border border-muted/20 px-4 py-4"
-              style={{ backgroundColor: 'hsl(0, 0%, 7%)' }}
+              className="flex w-full items-center justify-between rounded-xl border border-muted/20 px-4 py-3"
+              style={{ backgroundColor: 'hsl(0, 0%, 15%)' }}
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                  <img src={item.icon} alt="" className="h-5 w-5" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black">
+                  <img src={item.icon} alt="" className="h-4 w-4" />
                 </div>
                 <span className="text-foreground font-medium text-base">{item.label}</span>
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-                <img src="/assets/Back.svg" alt="Go" className="h-4 w-4 rotate-180" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary">
+                <img src="/assets/Back.svg" alt="Go" className="h-3 w-3 rotate-180" />
               </div>
             </button>
           ))}

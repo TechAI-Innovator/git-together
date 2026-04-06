@@ -23,6 +23,9 @@ interface MealDisplay {
   image: string;
 }
 
+/** Same avatar as header + menu overlay profile row */
+const PROFILE_AVATAR_IMAGE = '/assets/stefan-stefancik-QXevDflbl8A-unsplash 1.png';
+
 // Placeholder images for meals without images - randomly assigned
 const PLACEHOLDER_IMAGES = [
   '/assets/chad-montano-MqT0asuoIcU-unsplash 2.png', // Pizza
@@ -112,7 +115,7 @@ const Home: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden">
             <img 
-              src="/assets/stefan-stefancik-QXevDflbl8A-unsplash 1.png"
+              src={PROFILE_AVATAR_IMAGE}
               alt="User" 
               className="w-full h-full object-cover"
             />
@@ -273,7 +276,12 @@ const Home: React.FC = () => {
         )}
       </div>
 
-      <MenuOverlay visible={menuOpen} onClose={() => setMenuOpen(false)} user={user} />
+      <MenuOverlay
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        user={user}
+        profileImageSrc={PROFILE_AVATAR_IMAGE}
+      />
       <BottomNav />
     </div>
   );
