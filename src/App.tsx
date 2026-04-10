@@ -29,6 +29,8 @@ import Discover from './pages/Discover';
 import Support from './pages/Support';
 import Deposit from './pages/Deposit';
 import DepositSuccess from './pages/DepositSuccess';
+import Cart from './pages/Cart';
+import Order from './pages/Order';
 import './App.css';
 
 function App() {
@@ -58,6 +60,8 @@ function App() {
           <Route path="/map" element={<ProtectedRoute><Map /></ProtectedRoute>} />
           <Route path="/complete" element={<ProtectedRoute><Complete /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+          <Route path="/orders" element={<ProtectedRoute><Order /></ProtectedRoute>} />
           <Route path="/meal/:id" element={<ProtectedRoute><MealDetails /></ProtectedRoute>} />
           <Route path="/restaurants" element={<ProtectedRoute><Restaurants /></ProtectedRoute>} />
           {/* Nested meal under restaurant — URL stays under /restaurant/... */}
