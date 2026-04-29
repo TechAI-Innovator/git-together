@@ -31,6 +31,7 @@ import Deposit from './pages/Deposit';
 import DepositSuccess from './pages/DepositSuccess';
 import Cart from './pages/Cart';
 import Order from './pages/Order';
+import Logout from './pages/Logout';
 import './App.css';
 
 function App() {
@@ -53,7 +54,8 @@ function App() {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          
+          <Route path="/logout" element={<Logout />} />
+
           {/* Protected Routes - require authentication */}
           <Route path="/signup-form-2" element={<ProtectedRoute><SignUpForm2 /></ProtectedRoute>} />
           <Route path="/location" element={<ProtectedRoute><Location /></ProtectedRoute>} />

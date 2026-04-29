@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../components/PageHeader';
+import BackButton from '../components/BackButton';
 import BottomNav from '../components/BottomNav';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { responsivePx } from '../constants/responsive';
@@ -90,142 +90,122 @@ const Cart: React.FC = () => {
     setExpandedRestaurant(null);
   };
 
-  /* ── Detail view for a single restaurant ─────────── */
-  if (expandedRestaurant) {
-    const restaurant = orders.find((r) => r.id === expandedRestaurant);
-    if (!restaurant) {
-      setExpandedRestaurant(null);
-      return null;
-    }
+  const detailRestaurant =
+    expandedRestaurant != null ? orders.find((r) => r.id === expandedRestaurant) ?? null : null;
 
-    const mainItems = restaurant.items.filter((i) => i.section === 'main');
-    const extraItems = restaurant.items.filter((i) => i.section === 'extras');
-
-    const renderSection = (label: string, items: CartItem[]) => (
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-foreground font-semibold text-base">{label}:</h3>
-        </div>
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-3 bg-overlay-panel-background rounded-xl p-3 mb-2">
-            <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+  const renderSection = (restaurant: RestaurantOrder, label: string, items: CartItem[]) => (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-foreground font-semibold text-base">{label}:</h3>
+      </div>
+      {items.map((item) => (
+        <div key={item.id} className="flex items-center gap-3 bg-overlay-panel-background rounded-xl p-3 mb-2">
+          <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <h4 className="text-foreground font-medium text-sm truncate">{item.name}</h4>
+              <button onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}>
+                <img src="/assets/delete.svg" alt="Delete" className="w-4 h-4 opacity-60" />
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <h4 className="text-foreground font-medium text-sm truncate">{item.name}</h4>
-                <button onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}>
-                  <img src="/assets/delete.svg" alt="Delete" className="w-4 h-4 opacity-60" />
+            <p className="text-muted-foreground text-xs truncate">{item.description}</p>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-primary font-bold text-sm">₦{(item.price * item.quantity).toLocaleString()}</span>
+              <div className="flex items-center gap-1 bg-black rounded-full">
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(restaurant.id, item.id, -1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                  aria-label="Decrease quantity"
+                >
+                  <img src="/assets/Minus.png" alt="" className="h-5 w-5" />
                 </button>
-              </div>
-              <p className="text-muted-foreground text-xs truncate">{item.description}</p>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-primary font-bold text-sm">₦{(item.price * item.quantity).toLocaleString()}</span>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => updateQuantity(restaurant.id, item.id, -1)}
-                    className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm"
-                  >
-                    −
-                  </button>
-                  <span className="text-foreground text-sm font-medium w-4 text-center">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(restaurant.id, item.id, 1)}
-                    className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm"
-                  >
-                    +
-                  </button>
-                </div>
+                <span className="w-4 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(restaurant.id, item.id, 1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                  aria-label="Increase quantity"
+                >
+                  <img src="/assets/plus.svg" alt="" className="h-3 w-3" />
+                </button>
               </div>
             </div>
           </div>
-        ))}
-        <div className="flex items-center justify-between mt-1 px-1">
-          <span className="text-muted-foreground text-xs">{itemCount(items)} Items</span>
-          <span className="text-foreground font-bold text-sm">₦{orderTotal(items).toLocaleString()}</span>
         </div>
+      ))}
+      <div className="flex items-center justify-between mt-1 px-1">
+        <span className="text-muted-foreground text-xs">{itemCount(items)} Items</span>
+        <span className="text-foreground font-bold text-sm">₦{orderTotal(items).toLocaleString()}</span>
       </div>
-    );
+    </div>
+  );
 
-    return (
-      <div className="w-full min-h-screen bg-background font-[var(--font-poppins)]">
-        <PageHeader title={restaurant.name} onBack={() => setExpandedRestaurant(null)} />
-        <div className="h-20" />
+  const mainItems = detailRestaurant?.items.filter((i) => i.section === 'main') ?? [];
+  const extraItems = detailRestaurant?.items.filter((i) => i.section === 'extras') ?? [];
 
-        <div className={`${responsivePx} pb-28`}>
-          {mainItems.length > 0 && renderSection('Main', mainItems)}
-          {extraItems.length > 0 && renderSection('Extras', extraItems)}
-
-          {/* Proceed button */}
-          <button
-            onClick={() => navigate('/order')}
-            className="w-full mt-6 py-4 rounded-full bg-app-green text-background font-semibold text-lg transition-opacity hover:opacity-90 active:opacity-80"
-          >
-            Proceed to order
-          </button>
-        </div>
-
-        <ConfirmDialog
-          visible={!!deleteTarget}
-          title="Delete item?"
-          message="Are you sure you want to remove this item from your cart?"
-          confirmLabel="Delete"
-          cancelLabel="Keep"
-          confirmVariant="danger"
-          onConfirm={deleteItem}
-          onCancel={() => setDeleteTarget(null)}
-        />
-        <BottomNav />
-      </div>
-    );
-  }
-
-  /* ── List view (all restaurants) ─────────────────── */
   return (
-    <div className="w-full min-h-screen bg-background font-[var(--font-poppins)]">
-      <PageHeader title="Cart" />
+    <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
+      <div className={`absolute top-0 left-0 right-0 z-[50] ${responsivePx} pt-10`}>
+        <BackButton
+          variant="map"
+          title="Cart"
+          {...(detailRestaurant ? { onBack: () => setExpandedRestaurant(null) } : {})}
+        />
+      </div>
       <div className="h-20" />
 
-      <div className={`${responsivePx} pb-28`}>
-        {orders.length === 0 ? (
-          <div className="text-center text-muted-foreground py-16">Your cart is empty</div>
+      <div className={`${responsivePx} mt-10 pb-28`}>
+        {detailRestaurant ? (
+          <>
+            {mainItems.length > 0 && renderSection(detailRestaurant, 'Main', mainItems)}
+            {extraItems.length > 0 && renderSection(detailRestaurant, 'Extras', extraItems)}
+            <button
+              onClick={() => navigate('/order')}
+              className="mt-6 w-full rounded-full bg-app-green py-4 text-lg font-semibold text-background transition-opacity hover:opacity-90 active:opacity-80"
+            >
+              Proceed to order
+            </button>
+          </>
+        ) : orders.length === 0 ? (
+          <div className="py-16 text-center text-muted-foreground">Your cart is empty</div>
         ) : (
           orders.map((restaurant) => (
-            <div key={restaurant.id} className="bg-overlay-panel-background rounded-2xl p-4 mb-4">
-              {/* Restaurant header row */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                  <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" />
+            <div key={restaurant.id} className="mb-4 rounded-xl bg-overlay-panel-background px-2 py-5">
+              <div className="mb-6 flex w-full min-w-0 items-center gap-3">
+                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                  <img src={restaurant.logo} alt={restaurant.name} className="h-full w-full object-cover" />
                 </div>
-                <h2 className="text-foreground font-semibold text-base flex-1">{restaurant.name}</h2>
+                <div className="min-w-0 flex-1 text-left">
+                  <div className="flex min-w-0 items-center justify-between gap-2">
+                    <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">
+                      {restaurant.name}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedRestaurant(restaurant.id)}
+                      className="flex-shrink-0 text-xs text-white underline"
+                    >
+                      Show items
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {itemCount(restaurant.items)} Items | ₦{orderTotal(restaurant.items).toLocaleString()}
+                  </p>
+                </div>
               </div>
-
-              {/* Show items toggle */}
-              <button
-                onClick={() => setExpandedRestaurant(restaurant.id)}
-                className="flex items-center gap-2 mb-3 text-primary text-sm font-medium"
-              >
-                <span>Show items</span>
-                <img src="/assets/Back.svg" alt="" className="w-3 h-3 rotate-180" />
-              </button>
-
-              {/* Summary */}
-              <div className="flex items-center justify-between text-sm mb-4">
-                <span className="text-muted-foreground">{itemCount(restaurant.items)} Items</span>
-                <span className="text-foreground font-bold">₦{orderTotal(restaurant.items).toLocaleString()}</span>
-              </div>
-
-              {/* Action buttons */}
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/order')}
-                  className="flex-1 py-3 rounded-full bg-app-green text-background font-semibold text-sm transition-opacity hover:opacity-90"
+                  className="flex-1 rounded-xl bg-app-green py-3 text-sm text-background transition-opacity hover:opacity-90"
                 >
                   Checkout
                 </button>
                 <button
                   onClick={() => setRemoveTarget(restaurant.id)}
-                  className="flex-1 py-3 rounded-full border-2 border-primary text-primary font-semibold text-sm transition-opacity hover:opacity-80"
+                  className="flex-1 rounded-xl border-2 border-primary py-3 text-sm text-primary transition-opacity hover:opacity-80"
                 >
                   Remove
                 </button>
@@ -233,14 +213,18 @@ const Cart: React.FC = () => {
             </div>
           ))
         )}
-
-        {orders.length > 1 && (
-          <button className="w-full text-center text-primary text-sm font-medium py-2">
-            See more
-          </button>
-        )}
       </div>
 
+      <ConfirmDialog
+        visible={!!deleteTarget}
+        title="Delete item?"
+        message="Are you sure you want to remove this item from your cart?"
+        confirmLabel="Delete"
+        cancelLabel="Keep"
+        confirmVariant="danger"
+        onConfirm={deleteItem}
+        onCancel={() => setDeleteTarget(null)}
+      />
       <ConfirmDialog
         visible={!!removeTarget}
         title="Remove order?"
