@@ -96,55 +96,71 @@ const Cart: React.FC = () => {
   const detailRestaurant =
     expandedRestaurant != null ? orders.find((r) => r.id === expandedRestaurant) ?? null : null;
 
-  const renderSection = (restaurant: RestaurantOrder, label: string, items: CartItem[]) => (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-foreground font-semibold text-base">{label}:</h3>
-      </div>
-      {items.map((item) => (
-        <div key={item.id} className="flex items-center gap-3 bg-overlay-panel-background rounded-xl p-3 mb-2">
-          <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
-            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+  const toggleExpand = (id: string) =>
+    setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
+    const isOpen = !!expandedItems[item.id];
+    return (
+      <div key={item.id} className="mb-4 overflow-hidden rounded-xl bg-overlay-panel-background">
+        <div className="flex items-stretch gap-3 p-3">
+          <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
+            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h4 className="text-foreground font-medium text-sm truncate">{item.name}</h4>
-              <button onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}>
-                <img src="/assets/delete.svg" alt="Delete" className="w-4 h-4 opacity-60" />
+          <div className="flex flex-1 min-w-0 flex-col">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className="text-foreground font-bold text-base leading-tight">
+                {item.name}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}
+                aria-label="Delete item"
+                className="text-foreground/80 hover:text-foreground"
+              >
+                <Trash2 className="h-5 w-5" strokeWidth={1.75} />
               </button>
             </div>
-            <p className="text-muted-foreground text-xs truncate">{item.description}</p>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-primary font-bold text-sm">₦{(item.price * item.quantity).toLocaleString()}</span>
-              <div className="flex items-center gap-1 bg-black rounded-full">
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, -1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
-                  aria-label="Decrease quantity"
-                >
-                  <img src="/assets/Minus.png" alt="" className="h-5 w-5" />
-                </button>
-                <span className="w-4 text-center text-sm font-medium text-foreground">{item.quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                  aria-label="Increase quantity"
-                >
-                  <img src="/assets/plus.svg" alt="" className="h-3 w-3" />
-                </button>
-              </div>
+            <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+            <p className="mt-1 text-primary font-bold text-sm">₦{item.price.toLocaleString()}</p>
+            <div className="mt-auto flex items-center justify-end gap-1 pt-2">
+              <button
+                type="button"
+                onClick={() => updateQuantity(restaurant.id, item.id, -1)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
+              </button>
+              <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(restaurant.id, item.id, 1)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
+              </button>
             </div>
           </div>
         </div>
-      ))}
-      <div className="flex items-center justify-between mt-1 px-1">
-        <span className="text-muted-foreground text-xs">{itemCount(items)} Items</span>
-        <span className="text-foreground font-bold text-sm">₦{orderTotal(items).toLocaleString()}</span>
+        {item.description && item.description.length > 30 && (
+          <button
+            type="button"
+            onClick={() => toggleExpand(item.id)}
+            className="flex w-full items-center justify-center gap-2 rounded-b-xl bg-primary py-2 text-sm font-medium text-primary-foreground"
+          >
+            {isOpen ? 'See less' : 'See more'}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+        )}
+        {isOpen && (
+          <div className="px-4 pb-3 text-xs text-muted-foreground">{item.description}</div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
+
 
   const mainItems = detailRestaurant?.items.filter((i) => i.section === 'main') ?? [];
   const extraItems = detailRestaurant?.items.filter((i) => i.section === 'extras') ?? [];
