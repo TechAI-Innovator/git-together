@@ -228,16 +228,43 @@ const Cart: React.FC = () => {
         )}
       </div>
 
-      <ConfirmDialog
-        visible={!!deleteTarget}
-        title="Delete item?"
-        message="Are you sure you want to remove this item from your cart?"
-        confirmLabel="Delete"
-        cancelLabel="Keep"
-        confirmVariant="danger"
-        onConfirm={deleteItem}
-        onCancel={() => setDeleteTarget(null)}
-      />
+      {/* Proceed to order — wrapper bg matches card bg, button is primary */}
+      {detailRestaurant && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-overlay-panel-background px-4 py-3">
+          <Button onClick={() => navigate('/order')} variant="primary">
+            Proceed to order
+          </Button>
+        </div>
+      )}
+
+      {/* Delete confirmation — copied from MealDetails */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+          <div
+            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-foreground text-base font-medium">Delete item?</p>
+            <div className="flex w-full min-w-[200px] gap-12">
+              <button
+                type="button"
+                onClick={deleteItem}
+                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ConfirmDialog
         visible={!!removeTarget}
         title="Remove order?"
