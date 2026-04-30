@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import BottomNav from '../components/BottomNav';
+import Button from '../components/Button';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { responsivePx } from '../constants/responsive';
 
