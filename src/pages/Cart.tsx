@@ -56,6 +56,7 @@ const Cart: React.FC = () => {
   const [expandedRestaurant, setExpandedRestaurant] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ restaurantId: string; itemId: string } | null>(null);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   /* helpers */
   const orderTotal = (items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0);
