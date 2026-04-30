@@ -162,8 +162,6 @@ const Cart: React.FC = () => {
   };
 
 
-  const mainItems = detailRestaurant?.items.filter((i) => i.section === 'main') ?? [];
-  const extraItems = detailRestaurant?.items.filter((i) => i.section === 'extras') ?? [];
 
   return (
     <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
@@ -176,17 +174,13 @@ const Cart: React.FC = () => {
       </div>
       <div className="h-20" />
 
-      <div className={`${responsivePx} mt-10 pb-28`}>
+      <div className={`${responsivePx} mt-6 pb-36`}>
         {detailRestaurant ? (
           <>
-            {mainItems.length > 0 && renderSection(detailRestaurant, 'Main', mainItems)}
-            {extraItems.length > 0 && renderSection(detailRestaurant, 'Extras', extraItems)}
-            <button
-              onClick={() => navigate('/order')}
-              className="mt-6 w-full rounded-full bg-app-green py-4 text-lg font-semibold text-background transition-opacity hover:opacity-90 active:opacity-80"
-            >
-              Proceed to order
-            </button>
+            <p className="mb-3 border-b border-white/10 pb-2 text-sm text-muted-foreground">
+              {detailRestaurant.name}
+            </p>
+            {detailRestaurant.items.map((item) => renderItemCard(detailRestaurant, item))}
           </>
         ) : orders.length === 0 ? (
           <div className="py-16 text-center text-muted-foreground">Your cart is empty</div>
