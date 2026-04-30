@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import BottomNav from '../components/BottomNav';
+import Button from '../components/Button';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { responsivePx } from '../constants/responsive';
 
@@ -54,6 +56,7 @@ const Cart: React.FC = () => {
   const [expandedRestaurant, setExpandedRestaurant] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ restaurantId: string; itemId: string } | null>(null);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   /* helpers */
   const orderTotal = (items: CartItem[]) => items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -93,58 +96,72 @@ const Cart: React.FC = () => {
   const detailRestaurant =
     expandedRestaurant != null ? orders.find((r) => r.id === expandedRestaurant) ?? null : null;
 
-  const renderSection = (restaurant: RestaurantOrder, label: string, items: CartItem[]) => (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-foreground font-semibold text-base">{label}:</h3>
-      </div>
-      {items.map((item) => (
-        <div key={item.id} className="flex items-center gap-3 bg-overlay-panel-background rounded-xl p-3 mb-2">
-          <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
-            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+  const toggleExpand = (id: string) =>
+    setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
+    const isOpen = !!expandedItems[item.id];
+    return (
+      <div key={item.id} className="mb-4 overflow-hidden rounded-xl bg-overlay-panel-background">
+        <div className="flex items-stretch gap-3 p-3">
+          <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
+            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h4 className="text-foreground font-medium text-sm truncate">{item.name}</h4>
-              <button onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}>
-                <img src="/assets/delete.svg" alt="Delete" className="w-4 h-4 opacity-60" />
+          <div className="flex flex-1 min-w-0 flex-col">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className="text-foreground font-bold text-base leading-tight">
+                {item.name}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}
+                aria-label="Delete item"
+                className="text-foreground/80 hover:text-foreground"
+              >
+                <Trash2 className="h-5 w-5" strokeWidth={1.75} />
               </button>
             </div>
-            <p className="text-muted-foreground text-xs truncate">{item.description}</p>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-primary font-bold text-sm">₦{(item.price * item.quantity).toLocaleString()}</span>
-              <div className="flex items-center gap-1 bg-black rounded-full">
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, -1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
-                  aria-label="Decrease quantity"
-                >
-                  <img src="/assets/Minus.png" alt="" className="h-5 w-5" />
-                </button>
-                <span className="w-4 text-center text-sm font-medium text-foreground">{item.quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                  aria-label="Increase quantity"
-                >
-                  <img src="/assets/plus.svg" alt="" className="h-3 w-3" />
-                </button>
-              </div>
+            <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+            <p className="mt-1 text-primary font-bold text-sm">₦{item.price.toLocaleString()}</p>
+            <div className="mt-auto flex items-center justify-end gap-1 pt-2">
+              <button
+                type="button"
+                onClick={() => updateQuantity(restaurant.id, item.id, -1)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
+              </button>
+              <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(restaurant.id, item.id, 1)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
+              </button>
             </div>
           </div>
         </div>
-      ))}
-      <div className="flex items-center justify-between mt-1 px-1">
-        <span className="text-muted-foreground text-xs">{itemCount(items)} Items</span>
-        <span className="text-foreground font-bold text-sm">₦{orderTotal(items).toLocaleString()}</span>
+        {item.description && item.description.length > 30 && (
+          <button
+            type="button"
+            onClick={() => toggleExpand(item.id)}
+            className="flex w-full items-center justify-center gap-2 rounded-b-xl bg-primary py-2 text-sm font-medium text-primary-foreground"
+          >
+            {isOpen ? 'See less' : 'See more'}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+        )}
+        {isOpen && (
+          <div className="px-4 pb-3 text-xs text-muted-foreground">{item.description}</div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
-  const mainItems = detailRestaurant?.items.filter((i) => i.section === 'main') ?? [];
-  const extraItems = detailRestaurant?.items.filter((i) => i.section === 'extras') ?? [];
+
 
   return (
     <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
@@ -157,17 +174,13 @@ const Cart: React.FC = () => {
       </div>
       <div className="h-20" />
 
-      <div className={`${responsivePx} mt-10 pb-28`}>
+      <div className={`${responsivePx} mt-6 pb-36`}>
         {detailRestaurant ? (
           <>
-            {mainItems.length > 0 && renderSection(detailRestaurant, 'Main', mainItems)}
-            {extraItems.length > 0 && renderSection(detailRestaurant, 'Extras', extraItems)}
-            <button
-              onClick={() => navigate('/order')}
-              className="mt-6 w-full rounded-full bg-app-green py-4 text-lg font-semibold text-background transition-opacity hover:opacity-90 active:opacity-80"
-            >
-              Proceed to order
-            </button>
+            <p className="mb-3 border-b border-white/10 pb-2 text-sm text-muted-foreground">
+              {detailRestaurant.name}
+            </p>
+            {detailRestaurant.items.map((item) => renderItemCard(detailRestaurant, item))}
           </>
         ) : orders.length === 0 ? (
           <div className="py-16 text-center text-muted-foreground">Your cart is empty</div>
@@ -215,16 +228,43 @@ const Cart: React.FC = () => {
         )}
       </div>
 
-      <ConfirmDialog
-        visible={!!deleteTarget}
-        title="Delete item?"
-        message="Are you sure you want to remove this item from your cart?"
-        confirmLabel="Delete"
-        cancelLabel="Keep"
-        confirmVariant="danger"
-        onConfirm={deleteItem}
-        onCancel={() => setDeleteTarget(null)}
-      />
+      {/* Proceed to order — wrapper bg matches card bg, button is primary */}
+      {detailRestaurant && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-overlay-panel-background px-4 py-3">
+          <Button onClick={() => navigate('/order')} variant="primary">
+            Proceed to order
+          </Button>
+        </div>
+      )}
+
+      {/* Delete confirmation — copied from MealDetails */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+          <div
+            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-foreground text-base font-medium">Delete item?</p>
+            <div className="flex w-full min-w-[200px] gap-12">
+              <button
+                type="button"
+                onClick={deleteItem}
+                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ConfirmDialog
         visible={!!removeTarget}
         title="Remove order?"
