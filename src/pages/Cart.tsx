@@ -97,6 +97,9 @@ const Cart: React.FC = () => {
   const toggleExpand = (id: string) =>
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  /** True when this line item represents multiple separate servings (name ends with " (+N)"). */
+  const itemHasMultiServingBreakdown = (name: string) => /\s*\(\+\d+\)$/.test(name);
+
   /** Splits trailing " (+N)" so the suffix can use primary pill styling (e.g. extra servings). */
   const renderItemName = (name: string) => {
     const match = name.match(/^(.*?)(\s*\(\+\d+\))$/);
@@ -130,15 +133,18 @@ const Cart: React.FC = () => {
   });
 
   const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
-    const isOpen = !!expandedItems[item.id];
-    const breakdown = getBreakdown(item);
+    const hasBreakdown = itemHasMultiServingBreakdown(item.name);
+    const isOpen = hasBreakdown && !!expandedItems[item.id];
+    const breakdown = hasBreakdown ? getBreakdown(item) : null;
 
     return (
       <div
         key={item.id}
-        className={`mb-4 rounded-xl bg-overlay-panel-background ${isOpen ? 'relative z-30 shadow-2xl' : ''}`}
+        className={`mb-4 rounded-xl bg-overlay-panel-background ${
+          hasBreakdown && isOpen ? 'relative z-30 shadow-2xl' : ''
+        } ${hasBreakdown ? '' : 'overflow-hidden'}`}
       >
-        <div className="overflow-hidden rounded-t-xl">
+        <div className={hasBreakdown ? 'overflow-hidden rounded-t-xl' : ''}>
           <div className="flex items-stretch gap-3 p-2">
             <div className="h-26 w-26 flex-shrink-0 overflow-hidden rounded-lg">
               <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
@@ -148,7 +154,7 @@ const Cart: React.FC = () => {
                 <h4 className="text-foreground font-semibold text-lg leading-tight">
                   {renderItemName(item.name)}
                 </h4>
-                {isOpen ? (
+                {hasBreakdown && isOpen ? (
                   <span aria-hidden className="text-foreground/80 pt-1">
                     <MoreHorizontal className="h-5 w-5" />
                   </span>
@@ -189,34 +195,34 @@ const Cart: React.FC = () => {
             </div>
           </div>
 
-          {isOpen && (
-            <div className="px-4 pt-2 pb-4 space-y-4">
+          {hasBreakdown && isOpen && breakdown && (
+            <div className="px-4 py-6 space-y-4 border-t-3 border-t-black/40">
               <div>
-                <p className="text-xs text-muted-foreground">Sauce:</p>
-                <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                <p className="text-xs text-muted-foreground/70">Sauce:</p>
+                <div className="flex items-center justify-between border-b border-white/40 pb-1">
                   <span className="text-foreground text-base">{breakdown.sauce.name}</span>
                   <span className="text-foreground text-base">₦{breakdown.sauce.price.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <h5 className="text-foreground text-lg font-semibold">Second serving</h5>
+              <div className="space-y-3 mt-6">
+                <h5 className="text-foreground text-xl">Second serving</h5>
                 <div>
-                  <p className="text-xs text-muted-foreground">Main:</p>
-                  <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                  <p className="text-xs text-muted-foreground/70">Main:</p>
+                  <div className="flex items-center justify-between border-b border-white/40 pb-1">
                     <span className="text-foreground text-base">{breakdown.secondServing.main.name}</span>
                     <span className="text-foreground text-base">₦{breakdown.secondServing.main.price.toLocaleString()}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Sauce:</p>
-                  <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                  <p className="text-xs text-muted-foreground/70">Sauce:</p>
+                  <div className="flex items-center justify-between border-b border-white/40 pb-1">
                     <span className="text-foreground text-base">{breakdown.secondServing.sauce.name}</span>
                     <span className="text-foreground text-base">₦{breakdown.secondServing.sauce.price.toLocaleString()}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Extras:</p>
+                  <p className="text-xs text-muted-foreground/70 mb-1">Extras:</p>
                   <div className="space-y-1.5">
                     {breakdown.secondServing.extras.map((ex) => (
                       <div key={ex.name} className="flex items-center justify-between">
@@ -231,23 +237,25 @@ const Cart: React.FC = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => toggleExpand(item.id)}
-          className={`flex w-full items-center justify-center gap-2 text-xs py-1.5 rounded-b-xl ${
-            isOpen
-              ? 'bg-overlay-panel-background text-primary'
-              : 'bg-primary text-primary-foreground'
-          }`}
-        >
-          {isOpen ? 'See less' : 'See more'}
-          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </button>
+        {hasBreakdown && (
+          <button
+            type="button"
+            onClick={() => toggleExpand(item.id)}
+            className={`flex w-full items-center justify-center gap-2 text-xs py-1.5 rounded-b-xl bg-primary text-primary-foreground`}
+          >
+            {isOpen ? 'See less' : 'See more'}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+        )}
       </div>
     );
   };
 
-
+  const anyServingDropdownOpen =
+    detailRestaurant != null &&
+    detailRestaurant.items.some(
+      (item) => itemHasMultiServingBreakdown(item.name) && expandedItems[item.id],
+    );
 
   return (
     <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
@@ -262,12 +270,14 @@ const Cart: React.FC = () => {
 
       <div
         className={`${responsivePx} mt-6 ${
-          detailRestaurant ? 'pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]' : 'pb-10'
+          detailRestaurant && !anyServingDropdownOpen
+            ? 'pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]'
+            : 'pb-10'
         }`}
       >
         {detailRestaurant ? (
           <>
-            <p className="mb-5 border-b border-primary-foreground/80 pb-1 text-sm text-muted-foreground">
+            <p className="mb-5 border-b border-primary-foreground/30 pb-1 text-sm text-muted-foreground">
               {detailRestaurant.name}
             </p>
             {detailRestaurant.items.map((item) => renderItemCard(detailRestaurant, item))}
@@ -318,8 +328,8 @@ const Cart: React.FC = () => {
         )}
       </div>
 
-      {/* Proceed to order — fixed to bottom of screen; scroll area clears via pb-* above */}
-      {detailRestaurant && (
+      {/* Proceed to order — hidden while a multi-serving breakdown dropdown is open */}
+      {detailRestaurant && !anyServingDropdownOpen && (
         <div
           className={`fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-overlay-panel-background ${responsivePx} pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]`}
         >
