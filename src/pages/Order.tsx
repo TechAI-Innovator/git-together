@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../components/PageHeader';
-import BottomNav from '../components/BottomNav';
+import { Plus, Minus, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
+import BackButton from '../components/BackButton';
+import Button from '../components/Button';
 import TabSwitcher from '../components/TabSwitcher';
-import ConfirmDialog from '../components/ConfirmDialog';
 import { responsivePx } from '../constants/responsive';
 
 /* ── Types ─────────────────────────────────────────── */
@@ -44,7 +44,7 @@ const DUMMY_ORDER_ITEMS: OrderItem[] = [
     price: 1500,
     quantity: 1,
     image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop',
-    restaurant: "Domino's Pizza",
+    restaurant: 'Chicken Republic',
   },
 ];
 
@@ -56,14 +56,6 @@ const DUMMY_ONGOING: OngoingOrder[] = [
     total: 11500,
     status: 'preparing',
     eta: '25 mins',
-  },
-  {
-    id: 'o2',
-    restaurant: "Domino's Pizza",
-    items: ['Blueberry Pancake x1'],
-    total: 1500,
-    status: 'on the way',
-    eta: '10 mins',
   },
 ];
 
@@ -80,7 +72,7 @@ const Order: React.FC = () => {
   const [activeTab, setActiveTab] = useState('order');
   const [items, setItems] = useState<OrderItem[]>(DUMMY_ORDER_ITEMS);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [showSeeMore, setShowSeeMore] = useState<Record<string, boolean>>({});
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const total = subtotal + DELIVERY_FEE;
@@ -91,9 +83,45 @@ const Order: React.FC = () => {
     setDeleteTarget(null);
   };
 
-  const handleCheckout = () => {
-    navigate('/order-complete');
+  const updateQuantity = (id: string, delta: number) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i,
+      ),
+    );
   };
+
+  const toggleExpand = (id: string) =>
+    setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const itemHasMultiServingBreakdown = (qty: number) => qty > 1;
+
+  const renderItemName = (item: OrderItem) => {
+    if (item.quantity > 1) {
+      return (
+        <>
+          {item.name}
+          <span className="ml-1 inline-block align-middle text-lg font-semibold text-primary">
+            (+{item.quantity - 1})
+          </span>
+        </>
+      );
+    }
+    return item.name;
+  };
+
+  // Demo breakdown
+  const getBreakdown = (_item: OrderItem) => ({
+    sauce: { name: 'Stew', price: 800 },
+    secondServing: {
+      main: { name: 'Rice', price: 1500 },
+      sauce: { name: 'Cabbage sauce', price: 1200 },
+      extras: [
+        { name: 'Fried plantains', price: 700 },
+        { name: 'Boiled egg', price: 100 },
+      ],
+    },
+  });
 
   /* Group items by restaurant */
   const groupedByRestaurant = items.reduce<Record<string, OrderItem[]>>((acc, item) => {
@@ -101,6 +129,125 @@ const Order: React.FC = () => {
     acc[item.restaurant].push(item);
     return acc;
   }, {});
+
+  const renderItemCard = (item: OrderItem) => {
+    const hasBreakdown = itemHasMultiServingBreakdown(item.quantity);
+    const isOpen = hasBreakdown && !!expandedItems[item.id];
+    const breakdown = hasBreakdown ? getBreakdown(item) : null;
+
+    return (
+      <div
+        key={item.id}
+        className={`mb-4 rounded-xl bg-overlay-panel-background ${
+          hasBreakdown && isOpen ? 'relative z-30 shadow-2xl' : ''
+        } ${hasBreakdown ? '' : 'overflow-hidden'}`}
+      >
+        <div className={hasBreakdown ? 'overflow-hidden rounded-t-xl' : ''}>
+          <div className="flex items-stretch gap-3 p-2">
+            <div className="h-26 w-26 flex-shrink-0 overflow-hidden rounded-lg">
+              <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+            </div>
+            <div className="flex flex-1 min-w-0 flex-col">
+              <div className="flex items-start justify-between gap-2">
+                <h4 className="text-foreground font-semibold text-lg leading-tight">
+                  {renderItemName(item)}
+                </h4>
+                {hasBreakdown && isOpen ? (
+                  <span aria-hidden className="text-foreground/80 pt-1">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(item.id)}
+                    aria-label="Delete item"
+                    className="text-foreground hover:text-foreground"
+                  >
+                    <img src="/assets/delete-white-2.png" alt="" className="h-5 w-5 object-contain" />
+                  </button>
+                )}
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+              <p className="mt-1 text-primary font-regular text-lg">₦{item.price.toLocaleString()}</p>
+              <div className="mt-auto flex items-center justify-end gap-1 pt-0">
+                <div className="flex bg-black rounded-full items-center">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.id, -1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
+                  </button>
+                  <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.id, 1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {hasBreakdown && isOpen && breakdown && (
+            <div className="px-4 py-6 space-y-4 border-t-3 border-t-black/40">
+              <div>
+                <p className="text-xs text-muted-foreground/70">Sauce:</p>
+                <div className="flex items-center justify-between border-b border-white/40 pb-1">
+                  <span className="text-foreground text-base">{breakdown.sauce.name}</span>
+                  <span className="text-foreground text-base">₦{breakdown.sauce.price.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3 mt-6">
+                <h5 className="text-foreground text-xl">Second serving</h5>
+                <div>
+                  <p className="text-xs text-muted-foreground/70">Main:</p>
+                  <div className="flex items-center justify-between border-b border-white/40 pb-1">
+                    <span className="text-foreground text-base">{breakdown.secondServing.main.name}</span>
+                    <span className="text-foreground text-base">₦{breakdown.secondServing.main.price.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground/70">Sauce:</p>
+                  <div className="flex items-center justify-between border-b border-white/40 pb-1">
+                    <span className="text-foreground text-base">{breakdown.secondServing.sauce.name}</span>
+                    <span className="text-foreground text-base">₦{breakdown.secondServing.sauce.price.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground/70 mb-1">Extras:</p>
+                  <div className="space-y-1.5">
+                    {breakdown.secondServing.extras.map((ex) => (
+                      <div key={ex.name} className="flex items-center justify-between">
+                        <span className="text-foreground text-base">{ex.name}</span>
+                        <span className="text-foreground text-base">₦{ex.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {hasBreakdown && (
+          <button
+            type="button"
+            onClick={() => toggleExpand(item.id)}
+            className="flex w-full items-center justify-center gap-2 text-xs py-1.5 rounded-b-xl bg-primary text-primary-foreground"
+          >
+            {isOpen ? 'See less' : 'See more'}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+    );
+  };
 
   const statusColor = (status: OngoingOrder['status']) => {
     switch (status) {
@@ -111,12 +258,15 @@ const Order: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-background font-[var(--font-poppins)]">
-      <PageHeader title="Order" />
+    <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
+      {/* Header — same map+title BackButton used in Cart */}
+      <div className={`absolute top-0 left-0 right-0 z-[50] ${responsivePx} pt-10`}>
+        <BackButton variant="map" title="Order" />
+      </div>
       <div className="h-20" />
 
-      <div className={`${responsivePx} pb-28`}>
-        {/* Tabs — reusable TabSwitcher */}
+      <div className={`${responsivePx} pb-10`}>
+        {/* Tabs */}
         <TabSwitcher tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* ── Order Tab ──────────────────────────── */}
@@ -128,78 +278,16 @@ const Order: React.FC = () => {
               <>
                 {Object.entries(groupedByRestaurant).map(([restaurant, restaurantItems]) => (
                   <div key={restaurant} className="mb-6">
-                    {/* Restaurant name */}
-                    <p className="text-muted-foreground text-sm mb-3 border-b border-muted/20 pb-2">
+                    <p className="mb-5 border-b border-primary-foreground/30 pb-1 text-sm text-muted-foreground">
                       {restaurant}
                     </p>
-
-                    {/* Items */}
-                    {restaurantItems.map((item) => (
-                      <div key={item.id} className="mb-3">
-                        <div className="flex gap-3 bg-overlay-panel-background rounded-xl overflow-hidden">
-                          {/* Image */}
-                          <div className="w-28 h-24 flex-shrink-0">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                          </div>
-                          {/* Details */}
-                          <div className="flex-1 py-3 pr-3 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div className="min-w-0">
-                                <h3 className="text-foreground font-bold text-base">
-                                  {item.name}
-                                  {item.quantity > 1 && (
-                                    <span className="text-primary font-bold"> (+{item.quantity - 1})</span>
-                                  )}
-                                </h3>
-                                <p className="text-muted-foreground text-xs mt-0.5 truncate">{item.description}</p>
-                              </div>
-                              <button
-                                onClick={() => setDeleteTarget(item.id)}
-                                className="ml-2 flex-shrink-0 p-1"
-                              >
-                                <img src="/assets/delete.svg" alt="Delete" className="w-5 h-5 opacity-70" />
-                              </button>
-                            </div>
-                            <p className="text-primary font-bold text-base mt-2">
-                              ₦{(item.price * item.quantity).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* See more toggle */}
-                        {item.quantity > 1 && (
-                          <button
-                            onClick={() => setShowSeeMore((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
-                            className="w-full mt-1 py-1.5 rounded-b-xl bg-primary text-primary-foreground text-xs font-medium flex items-center justify-center gap-1"
-                          >
-                            <span>{showSeeMore[item.id] ? 'See less' : 'See more'}</span>
-                            <img
-                              src="/assets/down-arrow.svg"
-                              alt=""
-                              className={`w-3 h-3 transition-transform ${showSeeMore[item.id] ? 'rotate-180' : ''}`}
-                            />
-                          </button>
-                        )}
-
-                        {/* Expanded items */}
-                        {showSeeMore[item.id] && item.quantity > 1 && (
-                          <div className="mt-1 bg-overlay-panel-background rounded-xl p-3 animate-fade-in">
-                            {Array.from({ length: item.quantity }).map((_, idx) => (
-                              <div key={idx} className="flex justify-between text-sm py-1">
-                                <span className="text-muted-foreground">{item.name} #{idx + 1}</span>
-                                <span className="text-foreground font-medium">₦{item.price.toLocaleString()}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    {restaurantItems.map((item) => renderItemCard(item))}
                   </div>
                 ))}
 
-                {/* Order Summary */}
-                <div className="mt-8 bg-overlay-panel-background rounded-2xl p-5">
-                  <h3 className="text-foreground font-bold text-base italic mb-4">Order Summary</h3>
+                {/* Order Summary — rounded top, card bg, black/40 divider */}
+                <div className="mt-8 bg-overlay-panel-background rounded-t-2xl p-5">
+                  <h3 className="text-foreground font-bold text-base mb-4">Order Summary</h3>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Sub total of items</span>
                     <span className="text-foreground">₦{subtotal.toLocaleString()}</span>
@@ -208,19 +296,18 @@ const Order: React.FC = () => {
                     <span className="text-muted-foreground">Delivery fee</span>
                     <span className="text-foreground">₦{DELIVERY_FEE.toLocaleString()}</span>
                   </div>
-                  <div className="border-t border-muted/20 pt-3 flex justify-between">
+                  <div className="border-t border-black/40 pt-3 flex justify-between">
                     <span className="text-foreground font-bold text-sm">Total</span>
-                    <span className="text-primary font-bold text-sm">₦{total.toLocaleString()}</span>
+                    <span className="text-foreground font-bold text-sm">₦{total.toLocaleString()}</span>
                   </div>
                 </div>
 
-                {/* Checkout button */}
-                <button
-                  onClick={handleCheckout}
-                  className="w-full mt-6 py-4 rounded-full bg-primary text-primary-foreground font-semibold text-lg transition-opacity hover:opacity-90 active:opacity-80"
-                >
-                  Checkout
-                </button>
+                {/* Checkout — reusable Button */}
+                <div className="mt-6">
+                  <Button onClick={() => navigate('/order-complete')} variant="primary">
+                    Checkout
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -245,16 +332,10 @@ const Order: React.FC = () => {
                       <p key={idx} className="text-muted-foreground text-sm">{item}</p>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between border-t border-muted/20 pt-3">
+                  <div className="flex items-center justify-between border-t border-black/40 pt-3">
                     <span className="text-muted-foreground text-xs">ETA: {order.eta}</span>
                     <span className="text-foreground font-bold text-sm">₦{order.total.toLocaleString()}</span>
                   </div>
-                  <button
-                    onClick={() => {/* future: track order */}}
-                    className="w-full mt-3 py-3 rounded-full bg-app-green text-background font-semibold text-sm transition-opacity hover:opacity-90"
-                  >
-                    Track Order
-                  </button>
                 </div>
               ))
             )}
@@ -262,17 +343,34 @@ const Order: React.FC = () => {
         )}
       </div>
 
-      <ConfirmDialog
-        visible={!!deleteTarget}
-        title="Delete item?"
-        message="Are you sure you want to remove this item from your order?"
-        confirmLabel="Delete"
-        cancelLabel="Keep"
-        confirmVariant="danger"
-        onConfirm={deleteItem}
-        onCancel={() => setDeleteTarget(null)}
-      />
-      <BottomNav />
+      {/* Delete confirmation — copied from Cart */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+          <div
+            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-foreground text-base font-medium">Delete item?</p>
+            <div className="flex w-full min-w-[200px] gap-12">
+              <button
+                type="button"
+                onClick={deleteItem}
+                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
