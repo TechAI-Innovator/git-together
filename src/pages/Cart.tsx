@@ -116,7 +116,7 @@ const Cart: React.FC = () => {
                 aria-label="Delete item"
                 className="text-foreground hover:text-foreground"
               >
-                <Trash2 className="h-5 w-5" strokeWidth={1.75} />
+                <img src="/assets/delete-white-2.png" alt="" className="h-5 w-5 object-contain" />
               </button>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
