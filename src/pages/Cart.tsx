@@ -97,6 +97,22 @@ const Cart: React.FC = () => {
   const toggleExpand = (id: string) =>
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  /** Splits trailing " (+N)" so the suffix can use primary pill styling (e.g. extra servings). */
+  const renderItemName = (name: string) => {
+    const match = name.match(/^(.*?)(\s*\(\+\d+\))$/);
+    if (!match) return name;
+    const [, base, suffixWithSpace] = match;
+    const suffix = suffixWithSpace.trim();
+    return (
+      <>
+        {base}
+        <span className="ml-1 inline-block align-middle text-lg font-semibold text-primary">
+          {suffix}
+        </span>
+      </>
+    );
+  };
+
   const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
     const isOpen = !!expandedItems[item.id];
     return (
@@ -107,8 +123,8 @@ const Cart: React.FC = () => {
           </div>
           <div className="flex flex-1 min-w-0 flex-col">
             <div className="flex items-start justify-between gap-2">
-              <h4 className="text-foreground font-bold text-base leading-tight">
-                {item.name}
+              <h4 className="text-foreground font-semibold text-lg leading-tight">
+                {renderItemName(item.name)}
               </h4>
               <button
                 type="button"
@@ -120,7 +136,7 @@ const Cart: React.FC = () => {
               </button>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-            <p className="mt-1 text-primary font-bold text-sm">₦{item.price.toLocaleString()}</p>
+            <p className="mt-1 text-primary font-regular text-lg">₦{item.price.toLocaleString()}</p>
             <div className="mt-auto flex items-center justify-end gap-1 pt-0">
               <div className="flex bg-black rounded-full items-center">
                 <button
@@ -181,7 +197,7 @@ const Cart: React.FC = () => {
       >
         {detailRestaurant ? (
           <>
-            <p className="mb-5 border-b border-primary-foreground pb-1 text-sm text-muted-foreground">
+            <p className="mb-5 border-b border-primary-foreground/80 pb-1 text-sm text-muted-foreground">
               {detailRestaurant.name}
             </p>
             {detailRestaurant.items.map((item) => renderItemCard(detailRestaurant, item))}
