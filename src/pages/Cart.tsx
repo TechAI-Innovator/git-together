@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import BottomNav from '../components/BottomNav';
 import Button from '../components/Button';
-import ConfirmDialog from '../components/ConfirmDialog';
 import { responsivePx } from '../constants/responsive';
 
 /* ── Types ─────────────────────────────────────────── */
@@ -103,8 +101,8 @@ const Cart: React.FC = () => {
     const isOpen = !!expandedItems[item.id];
     return (
       <div key={item.id} className="mb-4 overflow-hidden rounded-xl bg-overlay-panel-background">
-        <div className="flex items-stretch gap-3 p-3">
-          <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
+        <div className="flex items-stretch gap-3 p-2">
+          <div className="h-26 w-26 flex-shrink-0 overflow-hidden rounded-lg">
             <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
           </div>
           <div className="flex flex-1 min-w-0 flex-col">
@@ -116,31 +114,33 @@ const Cart: React.FC = () => {
                 type="button"
                 onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}
                 aria-label="Delete item"
-                className="text-foreground/80 hover:text-foreground"
+                className="text-foreground hover:text-foreground"
               >
                 <Trash2 className="h-5 w-5" strokeWidth={1.75} />
               </button>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
             <p className="mt-1 text-primary font-bold text-sm">₦{item.price.toLocaleString()}</p>
-            <div className="mt-auto flex items-center justify-end gap-1 pt-2">
-              <button
-                type="button"
-                onClick={() => updateQuantity(restaurant.id, item.id, -1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
-              </button>
-              <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
-              <button
-                type="button"
-                onClick={() => updateQuantity(restaurant.id, item.id, 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                aria-label="Increase quantity"
-              >
-                <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
-              </button>
+            <div className="mt-auto flex items-center justify-end gap-1 pt-0">
+              <div className="flex bg-black rounded-full items-center">
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(restaurant.id, item.id, -1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
+                </button>
+                <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(restaurant.id, item.id, 1)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@ const Cart: React.FC = () => {
           <button
             type="button"
             onClick={() => toggleExpand(item.id)}
-            className="flex w-full items-center justify-center gap-2 rounded-b-xl bg-primary py-2 text-sm font-medium text-primary-foreground"
+            className="flex w-full items-center justify-center gap-2 rounded-b-xl bg-primary text-xs py-0.5 text-primary-foreground"
           >
             {isOpen ? 'See less' : 'See more'}
             {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -174,10 +174,14 @@ const Cart: React.FC = () => {
       </div>
       <div className="h-20" />
 
-      <div className={`${responsivePx} mt-6 pb-36`}>
+      <div
+        className={`${responsivePx} mt-6 ${
+          detailRestaurant ? 'pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]' : 'pb-10'
+        }`}
+      >
         {detailRestaurant ? (
           <>
-            <p className="mb-3 border-b border-white/10 pb-2 text-sm text-muted-foreground">
+            <p className="mb-5 border-b border-primary-foreground pb-1 text-sm text-muted-foreground">
               {detailRestaurant.name}
             </p>
             {detailRestaurant.items.map((item) => renderItemCard(detailRestaurant, item))}
@@ -188,7 +192,7 @@ const Cart: React.FC = () => {
           orders.map((restaurant) => (
             <div key={restaurant.id} className="mb-4 rounded-xl bg-overlay-panel-background px-2 py-5">
               <div className="mb-6 flex w-full min-w-0 items-center gap-3">
-                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full">
                   <img src={restaurant.logo} alt={restaurant.name} className="h-full w-full object-cover" />
                 </div>
                 <div className="min-w-0 flex-1 text-left">
@@ -228,9 +232,11 @@ const Cart: React.FC = () => {
         )}
       </div>
 
-      {/* Proceed to order — wrapper bg matches card bg, button is primary */}
+      {/* Proceed to order — fixed to bottom of screen; scroll area clears via pb-* above */}
       {detailRestaurant && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 bg-overlay-panel-background px-4 py-3">
+        <div
+          className={`fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-overlay-panel-background ${responsivePx} pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]`}
+        >
           <Button onClick={() => navigate('/order')} variant="primary">
             Proceed to order
           </Button>
@@ -265,17 +271,35 @@ const Cart: React.FC = () => {
           </div>
         </div>
       )}
-      <ConfirmDialog
-        visible={!!removeTarget}
-        title="Remove order?"
-        message="All items from this restaurant will be removed from your cart."
-        confirmLabel="Remove"
-        cancelLabel="Keep"
-        confirmVariant="danger"
-        onConfirm={removeRestaurant}
-        onCancel={() => setRemoveTarget(null)}
-      />
-      <BottomNav />
+
+      {/* Remove restaurant — same overlay pattern as MealDetails delete serving */}
+      {removeTarget !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setRemoveTarget(null)}>
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+          <div
+            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-foreground text-base font-medium">Remove order?</p>
+            <div className="flex w-full min-w-[200px] gap-12">
+              <button
+                type="button"
+                onClick={removeRestaurant}
+                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={() => setRemoveTarget(null)}
+                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
