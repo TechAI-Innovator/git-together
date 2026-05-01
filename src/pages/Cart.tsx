@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Button from '../components/Button';
 import { responsivePx } from '../constants/responsive';
@@ -116,7 +116,7 @@ const Cart: React.FC = () => {
                 aria-label="Delete item"
                 className="text-foreground hover:text-foreground"
               >
-                <Trash2 className="h-5 w-5" strokeWidth={1.75} />
+                <img src="/assets/delete-white-2.png" alt="" className="h-5 w-5 object-contain" />
               </button>
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
