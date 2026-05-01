@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Minus, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Button from '../components/Button';
 import { responsivePx } from '../constants/responsive';
@@ -113,66 +113,136 @@ const Cart: React.FC = () => {
     );
   };
 
+  // Demo breakdown data — would come from item customization in real data
+  const getBreakdown = (_item: CartItem) => ({
+    sauce: { name: 'Stew', price: 800 },
+    secondServing: {
+      main: { name: 'Rice', price: 1500 },
+      sauce: { name: 'Cabbage sauce', price: 1200 },
+      extras: [
+        { name: 'Fried plantains', price: 700 },
+        { name: 'Boiled egg', price: 100 },
+        { name: 'Pepper meat', price: 1000 },
+        { name: 'Snail', price: 850 },
+        { name: 'Gizzard', price: 900 },
+      ],
+    },
+  });
+
   const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
     const isOpen = !!expandedItems[item.id];
+    const breakdown = getBreakdown(item);
+
     return (
-      <div key={item.id} className="mb-4 overflow-hidden rounded-xl bg-overlay-panel-background">
-        <div className="flex items-stretch gap-3 p-2">
-          <div className="h-26 w-26 flex-shrink-0 overflow-hidden rounded-lg">
-            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-          </div>
-          <div className="flex flex-1 min-w-0 flex-col">
-            <div className="flex items-start justify-between gap-2">
-              <h4 className="text-foreground font-semibold text-lg leading-tight">
-                {renderItemName(item.name)}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}
-                aria-label="Delete item"
-                className="text-foreground hover:text-foreground"
-              >
-                <img src="/assets/delete-white-2.png" alt="" className="h-5 w-5 object-contain" />
-              </button>
+      <div
+        key={item.id}
+        className={`mb-4 rounded-xl bg-overlay-panel-background ${isOpen ? 'relative z-30 shadow-2xl' : ''}`}
+      >
+        <div className="overflow-hidden rounded-t-xl">
+          <div className="flex items-stretch gap-3 p-2">
+            <div className="h-26 w-26 flex-shrink-0 overflow-hidden rounded-lg">
+              <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
             </div>
-            <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-            <p className="mt-1 text-primary font-regular text-lg">₦{item.price.toLocaleString()}</p>
-            <div className="mt-auto flex items-center justify-end gap-1 pt-0">
-              <div className="flex bg-black rounded-full items-center">
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, -1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
-                </button>
-                <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => updateQuantity(restaurant.id, item.id, 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
-                </button>
+            <div className="flex flex-1 min-w-0 flex-col">
+              <div className="flex items-start justify-between gap-2">
+                <h4 className="text-foreground font-semibold text-lg leading-tight">
+                  {renderItemName(item.name)}
+                </h4>
+                {isOpen ? (
+                  <span aria-hidden className="text-foreground/80 pt-1">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget({ restaurantId: restaurant.id, itemId: item.id })}
+                    aria-label="Delete item"
+                    className="text-foreground hover:text-foreground"
+                  >
+                    <img src="/assets/delete-white-2.png" alt="" className="h-5 w-5 object-contain" />
+                  </button>
+                )}
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+              <p className="mt-1 text-primary font-regular text-lg">₦{item.price.toLocaleString()}</p>
+              <div className="mt-auto flex items-center justify-end gap-1 pt-0">
+                <div className="flex bg-black rounded-full items-center">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(restaurant.id, item.id, -1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
+                  </button>
+                  <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(restaurant.id, item.id, 1)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          {isOpen && (
+            <div className="px-4 pt-2 pb-4 space-y-4">
+              <div>
+                <p className="text-xs text-muted-foreground">Sauce:</p>
+                <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                  <span className="text-foreground text-base">{breakdown.sauce.name}</span>
+                  <span className="text-foreground text-base">₦{breakdown.sauce.price.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h5 className="text-foreground text-lg font-semibold">Second serving</h5>
+                <div>
+                  <p className="text-xs text-muted-foreground">Main:</p>
+                  <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                    <span className="text-foreground text-base">{breakdown.secondServing.main.name}</span>
+                    <span className="text-foreground text-base">₦{breakdown.secondServing.main.price.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Sauce:</p>
+                  <div className="flex items-center justify-between border-b border-white/15 pb-1">
+                    <span className="text-foreground text-base">{breakdown.secondServing.sauce.name}</span>
+                    <span className="text-foreground text-base">₦{breakdown.secondServing.sauce.price.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Extras:</p>
+                  <div className="space-y-1.5">
+                    {breakdown.secondServing.extras.map((ex) => (
+                      <div key={ex.name} className="flex items-center justify-between">
+                        <span className="text-foreground text-base">{ex.name}</span>
+                        <span className="text-foreground text-base">₦{ex.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        {item.description && item.description.length > 30 && (
-          <button
-            type="button"
-            onClick={() => toggleExpand(item.id)}
-            className="flex w-full items-center justify-center gap-2 rounded-b-xl bg-primary text-xs py-0.5 text-primary-foreground"
-          >
-            {isOpen ? 'See less' : 'See more'}
-            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
-        )}
-        {isOpen && (
-          <div className="px-4 pb-3 text-xs text-muted-foreground">{item.description}</div>
-        )}
+
+        <button
+          type="button"
+          onClick={() => toggleExpand(item.id)}
+          className={`flex w-full items-center justify-center gap-2 text-xs py-1.5 rounded-b-xl ${
+            isOpen
+              ? 'bg-overlay-panel-background text-primary'
+              : 'bg-primary text-primary-foreground'
+          }`}
+        >
+          {isOpen ? 'See less' : 'See more'}
+          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
       </div>
     );
   };
