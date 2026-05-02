@@ -75,8 +75,11 @@ const Order: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [checkoutCompleteOpen, setCheckoutCompleteOpen] = useState(false);
+  /** Ongoing tab: tracking timeline shown only after the summary card is tapped */
+  const [ongoingTrackingOpen, setOngoingTrackingOpen] = useState(false);
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const orderItemCount = items.reduce((s, i) => s + i.quantity, 0);
   const total = subtotal + DELIVERY_FEE;
 
   const deleteItem = () => {
@@ -224,6 +227,16 @@ const Order: React.FC = () => {
 
   const firstItem = items[0];
 
+  const ongoingRestaurantLogo =
+    firstItem && firstItem.restaurant === 'Chicken Republic'
+      ? '/assets/chad-montano-MqT0asuoIcU-unsplash 2.png'
+      : firstItem?.image ?? '';
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (tabId !== 'ongoing') setOngoingTrackingOpen(false);
+  };
+
   return (
     <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
       {/* Header — same map+title BackButton used in Cart */}
@@ -240,7 +253,7 @@ const Order: React.FC = () => {
         }`}
       >
         {/* Tabs */}
-        <TabSwitcher tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabSwitcher tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* ── Order Tab ──────────────────────────── */}
         {activeTab === 'order' && (
@@ -269,63 +282,102 @@ const Order: React.FC = () => {
               <div className="text-center text-muted-foreground py-16">No ongoing orders</div>
             ) : (
               <>
-                {/* Restaurant + first item card (mirrors Order tab) */}
-                <p className="mb-5 border-b border-primary-foreground/30 pb-1 text-sm text-muted-foreground">
-                  {firstItem.restaurant}
-                </p>
-                {renderItemCard(firstItem)}
-
-                {/* Tracking section */}
-                <div className="mt-8">
-                  <p className="text-sm text-muted-foreground">Delivery time</p>
-                  <p className="text-foreground font-bold text-xl">{TRACKING_DELIVERY_TIME}</p>
-
-                  <ol className="mt-6 relative">
-                    {/* top stub line before first checkbox */}
-                    <span aria-hidden className="absolute left-[11px] -top-3 h-3 w-0.5 bg-primary" />
-                    {DUMMY_TRACKING_STEPS.map((step, idx) => {
-                      const isLast = idx === DUMMY_TRACKING_STEPS.length - 1;
-                      return (
-                        <li key={step.label} className="relative pl-9 pb-6">
-                          {/* connecting line to next step */}
-                          {!isLast && (
-                            <span aria-hidden className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-primary" />
-                          )}
-                          {/* checkbox */}
-                          <span
-                            className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-md ${
-                              step.completed ? 'bg-primary' : 'bg-muted'
-                            }`}
-                          >
-                            {step.completed && (
-                              <svg viewBox="0 0 12 12" fill="none" className="w-4 h-4 text-primary-foreground">
-                                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            )}
-                          </span>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <p className={`text-base font-semibold ${step.completed ? 'text-primary' : 'text-foreground'}`}>
-                                {step.label}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">{step.time}</span>
-                              {step.showView && (
-                                <button type="button" className="px-3 py-0.5 rounded-md bg-muted text-foreground text-xs">
-                                  View
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                    {/* bottom stub line after last checkbox */}
-                    <span aria-hidden className="absolute left-[11px] bottom-0 h-3 w-0.5 bg-primary" />
-                  </ol>
+                <div className="mb-4 rounded-xl bg-overlay-panel-background px-2 py-4">
+                  {/* Cart list-style header — tap row to show/hide tracking (no Show items / Checkout / Remove) */}
+                  <button
+                    type="button"
+                    className="w-full rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    onClick={() => setOngoingTrackingOpen((o) => !o)}
+                    aria-expanded={ongoingTrackingOpen}
+                  >
+                    <div className="flex w-full min-w-0 items-center gap-3">
+                      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full">
+                        <img
+                          src={ongoingRestaurantLogo}
+                          alt={firstItem.restaurant}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <h2 className="min-w-0 truncate text-base font-semibold text-foreground">{firstItem.restaurant}</h2>
+                        <p className="text-xs text-muted-foreground">
+                          {orderItemCount} Items | ₦{subtotal.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+                      <span className="text-[11px] leading-tight text-muted-foreground/75">
+                        Tap here for live tracking
+                      </span>
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 shrink-0 text-primary transition-transform duration-200 ${
+                          ongoingTrackingOpen ? 'rotate-180' : ''
+                        }`}
+                        aria-hidden
+                      />
+                    </div>
+                  </button>
                 </div>
+
+                {ongoingTrackingOpen && (
+                  <div className="-mx-4 mb-4 bg-black px-4 py-6 min-[574px]:-mx-6 min-[574px]:px-6">
+                    <p className="text-sm text-muted-foreground/80 ml-3">Delivery time</p>
+                    <p className="text-xl font-bold text-foreground ml-3">{TRACKING_DELIVERY_TIME}</p>
+
+                    <ol className="relative mt-6">
+                      <span aria-hidden className="absolute left-[11px] -top-3 h-3 w-0.5 bg-primary" />
+                      {DUMMY_TRACKING_STEPS.map((step, idx) => {
+                        const isLast = idx === DUMMY_TRACKING_STEPS.length - 1;
+                        return (
+                          <li key={step.label} className="relative pb-6 pl-9">
+                            {!isLast && (
+                              <span aria-hidden className="absolute bottom-0 left-[11px] top-6 w-0.5 bg-primary" />
+                            )}
+                            <span
+                              className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-sm ${
+                                step.completed ? 'bg-primary' : 'border border-white/80'
+                              }`}
+                            >
+                              {step.completed && (
+                                <svg viewBox="0 0 12 12" fill="none" className="h-4 w-4 text-primary-foreground">
+                                  <path
+                                    d="M2 6L5 9L10 3"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </span>
+                            {isLast && (
+                              <span aria-hidden className="absolute left-[11px] top-6 h-3 w-0.5 bg-primary" />
+                            )}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <p className={`text-base ${step.completed ? 'text-primary' : 'text-foreground'}`}>
+                                  {step.label}
+                                </p>
+                                <p className="mt-0.5 text-xs text-muted-foreground/80">{step.description}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="whitespace-nowrap text-xs text-muted-foreground/80">{step.time}</span>
+                                {step.showView && (
+                                  <button
+                                    type="button"
+                                    className="items-center justify-center rounded-full bg-white/70 px-3 py-0.5 text-xs text-foreground"
+                                  >
+                                    View
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -372,6 +424,7 @@ const Order: React.FC = () => {
             variant: 'green',
             onClick: () => {
               setCheckoutCompleteOpen(false);
+              setOngoingTrackingOpen(false);
               setActiveTab('ongoing');
             },
           },

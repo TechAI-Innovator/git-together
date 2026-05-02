@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../lib/api';
+import FullScreenLogoLoader from '../components/FullScreenLogoLoader';
 
 /**
  * Full-screen loading UI (matches ProtectedRoute auth check), signs out via Supabase,
@@ -25,15 +26,7 @@ const Logout: React.FC = () => {
     };
   }, [navigate]);
 
-  return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-black">
-      <img
-        src="/logo/Fast bite transparent I.png"
-        alt="Fast Bites"
-        className="h-1/2 w-1/2 object-contain animate-zoom-pulse"
-      />
-    </div>
-  );
+  return <FullScreenLogoLoader />;
 };
 
 export default Logout;

@@ -23,37 +23,40 @@ interface OverlayChoiceModalProps {
   panelClassName?: string;
 }
 
-/** Matches `Button` base: `py-3 rounded-full font-medium text-base`; labels use `text-white`. */
+/**
+ * Row actions match MealDetails delete-serving (`/restaurant/.../meal/...`):
+ * `rounded-md`, `py-2`, `text-sm font-semibold`, Yes = green + black text, No = primary + primary-foreground.
+ */
 function actionClass(variant: OverlayModalActionVariant, layout: 'row' | 'column'): string {
   const rowBase =
-    'flex-1 min-w-0 rounded-full py-3 text-center text-base font-normal text-white transition-opacity hover:opacity-90 active:opacity-80';
+    'flex-1 min-w-0 rounded-md py-2 text-center text-sm font-semibold transition-opacity hover:opacity-80';
   const colBase =
-    'w-full rounded-full py-3 text-center text-base font-normal text-white transition-opacity hover:opacity-90 active:opacity-80';
+    'w-full rounded-md py-2 text-center text-sm font-semibold transition-opacity hover:opacity-80';
 
   if (layout === 'column') {
     switch (variant) {
       case 'green':
-        return `${colBase} bg-app-green`;
+        return `${colBase} bg-app-green text-black`;
       case 'primary':
-        return `${colBase} bg-primary`;
+        return `${colBase} bg-primary text-primary-foreground`;
       case 'outline-green':
-        return `${colBase} border-2 border-app-green bg-transparent`;
+        return `${colBase} border-2 border-app-green bg-transparent text-app-green`;
     }
   }
 
   switch (variant) {
     case 'green':
-      return `${rowBase} bg-app-green`;
+      return `${rowBase} bg-app-green text-black`;
     case 'primary':
-      return `${rowBase} bg-primary`;
+      return `${rowBase} bg-primary text-primary-foreground`;
     case 'outline-green':
-      return `${rowBase} border-2 border-app-green bg-transparent`;
+      return `${rowBase} border-2 border-app-green bg-transparent text-app-green`;
   }
 }
 
 /**
- * Reusable overlay modal (same shell as Cart delete/remove confirmations):
- * blurred backdrop, bordered panel, one or two action buttons.
+ * Same shell and row actions as MealDetails “Delete serving?” on `/restaurant/:id/meal/:id`:
+ * blurred backdrop, bordered panel, Yes/No `rounded-md` pills (green + black text, primary + primary-foreground).
  */
 const OverlayChoiceModal: React.FC<OverlayChoiceModalProps> = ({
   open,
@@ -88,10 +91,12 @@ const OverlayChoiceModal: React.FC<OverlayChoiceModalProps> = ({
         aria-modal="true"
       >
         {imageSrc ? (
-          <img src={imageSrc} alt={imageAlt} className="mb-4 h-34 w-34 object-contain" />
+          <img src={imageSrc} alt={imageAlt} className="mx-auto h-34 w-34 object-contain" />
         ) : null}
         <p className={`text-center text-foreground ${titleClassName}`}>{title}</p>
-        {message ? <div className="mb-4 max-w-xs text-center text-sm text-foreground/70">{message}</div> : null}
+        {message ? (
+          <div className="max-w-xs text-center text-sm leading-relaxed text-foreground/70">{message}</div>
+        ) : null}
         <div className={actionsClass}>
           {actions.map((a) => (
             <button key={a.label} type="button" onClick={a.onClick} className={actionClass(a.variant, actionsLayout)}>
