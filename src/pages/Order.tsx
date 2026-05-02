@@ -18,13 +18,12 @@ interface OrderItem {
   restaurant: string;
 }
 
-interface OngoingOrder {
-  id: string;
-  restaurant: string;
-  items: string[];
-  total: number;
-  status: 'preparing' | 'on the way' | 'arriving';
-  eta: string;
+interface TrackingStep {
+  label: string;
+  description: string;
+  time: string;
+  completed: boolean;
+  showView?: boolean;
 }
 
 /* ── Dummy data ────────────────────────────────────── */
