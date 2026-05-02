@@ -48,15 +48,16 @@ const DUMMY_ORDER_ITEMS: OrderItem[] = [
   },
 ];
 
-const DUMMY_ONGOING: OngoingOrder[] = [
-  {
-    id: 'o1',
-    restaurant: 'Chicken Republic',
-    items: ['Rice x2', 'Stew x1'],
-    total: 11500,
-    status: 'preparing',
-    eta: '25 mins',
-  },
+const TRACKING_DELIVERY_TIME = '20 mins';
+
+const DEFAULT_DESCRIPTION = 'Your rider has arrived to pick up your order.';
+
+const DUMMY_TRACKING_STEPS: TrackingStep[] = [
+  { label: 'Ready!', description: 'Your order is ready to be picked up.', time: '9:45am', completed: true },
+  { label: 'Rider at the vendor.', description: DEFAULT_DESCRIPTION, time: '9:45am', completed: true },
+  { label: 'Order in transit', description: DEFAULT_DESCRIPTION, time: '-:--', completed: false, showView: true },
+  { label: 'Order has arrived', description: DEFAULT_DESCRIPTION, time: '-:--', completed: false },
+  { label: 'Delivered', description: DEFAULT_DESCRIPTION, time: '-:--', completed: false },
 ];
 
 const DELIVERY_FEE = 1500;
