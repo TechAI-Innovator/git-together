@@ -262,31 +262,71 @@ const Order: React.FC = () => {
           </div>
         )}
 
-        {/* ── Ongoing Tab ────────────────────────── */}
+        {/* ── Ongoing / Tracking Tab ─────────────── */}
         {activeTab === 'ongoing' && (
           <div className="mt-6">
-            {DUMMY_ONGOING.length === 0 ? (
+            {!firstItem ? (
               <div className="text-center text-muted-foreground py-16">No ongoing orders</div>
             ) : (
-              DUMMY_ONGOING.map((order) => (
-                <div key={order.id} className="bg-overlay-panel-background rounded-2xl p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-foreground font-semibold text-base">{order.restaurant}</h3>
-                    <span className={`text-xs font-medium capitalize ${statusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </div>
-                  <div className="mb-3">
-                    {order.items.map((item, idx) => (
-                      <p key={idx} className="text-muted-foreground text-sm">{item}</p>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between border-t border-black/40 pt-3">
-                    <span className="text-muted-foreground text-xs">ETA: {order.eta}</span>
-                    <span className="text-foreground font-bold text-sm">₦{order.total.toLocaleString()}</span>
-                  </div>
+              <>
+                {/* Restaurant + first item card (mirrors Order tab) */}
+                <p className="mb-5 border-b border-primary-foreground/30 pb-1 text-sm text-muted-foreground">
+                  {firstItem.restaurant}
+                </p>
+                {renderItemCard(firstItem)}
+
+                {/* Tracking section */}
+                <div className="mt-8">
+                  <p className="text-sm text-muted-foreground">Delivery time</p>
+                  <p className="text-foreground font-bold text-xl">{TRACKING_DELIVERY_TIME}</p>
+
+                  <ol className="mt-6 relative">
+                    {/* top stub line before first checkbox */}
+                    <span aria-hidden className="absolute left-[11px] -top-3 h-3 w-0.5 bg-primary" />
+                    {DUMMY_TRACKING_STEPS.map((step, idx) => {
+                      const isLast = idx === DUMMY_TRACKING_STEPS.length - 1;
+                      return (
+                        <li key={step.label} className="relative pl-9 pb-6">
+                          {/* connecting line to next step */}
+                          {!isLast && (
+                            <span aria-hidden className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-primary" />
+                          )}
+                          {/* checkbox */}
+                          <span
+                            className={`absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-md ${
+                              step.completed ? 'bg-primary' : 'bg-muted'
+                            }`}
+                          >
+                            {step.completed && (
+                              <svg viewBox="0 0 12 12" fill="none" className="w-4 h-4 text-primary-foreground">
+                                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </span>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-base font-semibold ${step.completed ? 'text-primary' : 'text-foreground'}`}>
+                                {step.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">{step.time}</span>
+                              {step.showView && (
+                                <button type="button" className="px-3 py-0.5 rounded-md bg-muted text-foreground text-xs">
+                                  View
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                    {/* bottom stub line after last checkbox */}
+                    <span aria-hidden className="absolute left-[11px] bottom-0 h-3 w-0.5 bg-primary" />
+                  </ol>
                 </div>
-              ))
+              </>
             )}
           </div>
         )}
