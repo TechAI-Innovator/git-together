@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Minus, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Button from '../components/Button';
+import OverlayChoiceModal from '../components/OverlayChoiceModal';
 import TabSwitcher from '../components/TabSwitcher';
 import { responsivePx } from '../constants/responsive';
 
@@ -73,6 +74,7 @@ const Order: React.FC = () => {
   const [items, setItems] = useState<OrderItem[]>(DUMMY_ORDER_ITEMS);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [checkoutCompleteOpen, setCheckoutCompleteOpen] = useState(false);
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const total = subtotal + DELIVERY_FEE;
@@ -81,14 +83,6 @@ const Order: React.FC = () => {
     if (!deleteTarget) return;
     setItems((prev) => prev.filter((i) => i.id !== deleteTarget));
     setDeleteTarget(null);
-  };
-
-  const updateQuantity = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i,
-      ),
-    );
   };
 
   const toggleExpand = (id: string) =>
@@ -111,7 +105,7 @@ const Order: React.FC = () => {
   };
 
   // Demo breakdown
-  const getBreakdown = (_item: OrderItem) => ({
+  const getBreakdown = () => ({
     sauce: { name: 'Stew', price: 800 },
     secondServing: {
       main: { name: 'Rice', price: 1500 },
@@ -133,7 +127,7 @@ const Order: React.FC = () => {
   const renderItemCard = (item: OrderItem) => {
     const hasBreakdown = itemHasMultiServingBreakdown(item.quantity);
     const isOpen = hasBreakdown && !!expandedItems[item.id];
-    const breakdown = hasBreakdown ? getBreakdown(item) : null;
+    const breakdown = hasBreakdown ? getBreakdown() : null;
 
     return (
       <div
@@ -169,27 +163,6 @@ const Order: React.FC = () => {
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{item.description}</p>
               <p className="mt-1 text-primary font-regular text-lg">₦{item.price.toLocaleString()}</p>
-              <div className="mt-auto flex items-center justify-end gap-1 pt-0">
-                <div className="flex bg-black rounded-full items-center">
-                  <button
-                    type="button"
-                    onClick={() => updateQuantity(item.id, -1)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="h-4 w-4 text-black" strokeWidth={2.5} />
-                  </button>
-                  <span className="w-6 text-center text-sm font-medium text-foreground">{item.quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => updateQuantity(item.id, 1)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-primary"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -263,9 +236,15 @@ const Order: React.FC = () => {
       <div className={`absolute top-0 left-0 right-0 z-[50] ${responsivePx} pt-10`}>
         <BackButton variant="map" title="Order" />
       </div>
-      <div className="h-20" />
+      <div className="h-27" />
 
-      <div className={`${responsivePx} pb-10`}>
+      <div
+        className={`${responsivePx} ${
+          activeTab === 'order' && items.length > 0
+            ? 'pb-[calc(15rem+env(safe-area-inset-bottom,0px))]'
+            : 'pb-10'
+        }`}
+      >
         {/* Tabs */}
         <TabSwitcher tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -284,30 +263,6 @@ const Order: React.FC = () => {
                     {restaurantItems.map((item) => renderItemCard(item))}
                   </div>
                 ))}
-
-                {/* Order Summary — rounded top, card bg, black/40 divider */}
-                <div className="mt-8 bg-overlay-panel-background rounded-t-2xl p-5">
-                  <h3 className="text-foreground font-bold text-base mb-4">Order Summary</h3>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Sub total of items</span>
-                    <span className="text-foreground">₦{subtotal.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-muted-foreground">Delivery fee</span>
-                    <span className="text-foreground">₦{DELIVERY_FEE.toLocaleString()}</span>
-                  </div>
-                  <div className="border-t border-black/40 pt-3 flex justify-between">
-                    <span className="text-foreground font-bold text-sm">Total</span>
-                    <span className="text-foreground font-bold text-sm">₦{total.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                {/* Checkout — reusable Button */}
-                <div className="mt-6">
-                  <Button onClick={() => navigate('/order-complete')} variant="primary">
-                    Checkout
-                  </Button>
-                </div>
               </>
             )}
           </div>
@@ -343,34 +298,69 @@ const Order: React.FC = () => {
         )}
       </div>
 
-      {/* Delete confirmation — copied from Cart */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-          <div
-            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-foreground text-base font-medium">Delete item?</p>
-            <div className="flex w-full min-w-[200px] gap-12">
-              <button
-                type="button"
-                onClick={deleteItem}
-                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
-              >
-                Yes
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(null)}
-                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
-              >
-                No
-              </button>
-            </div>
+      {/* Order Summary — fixed bottom, full width (no horizontal inset); scroll area uses pb-* above */}
+      {activeTab === 'order' && items.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 rounded-t-4xl bg-overlay-panel-background px-4 pt-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Order Summary</h3>
+          <div className="mb-2 flex justify-between text-xs">
+            <span className="text-muted-foreground">Sub total of items</span>
+            <span className="text-muted-foreground">₦{subtotal.toLocaleString()}</span>
+          </div>
+          <div className="mb-3 flex justify-between text-xs">
+            <span className="text-muted-foreground">Delivery fee</span>
+            <span className="text-muted-foreground">₦{DELIVERY_FEE.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between border-t border-white/40 pt-3">
+            <span className="text-xs font-semibold text-foreground">Total</span>
+            <span className="text-xs font-semibold text-foreground">₦{total.toLocaleString()}</span>
+          </div>
+          <div className="mt-6">
+            <Button onClick={() => setCheckoutCompleteOpen(true)} variant="primary">
+              Checkout
+            </Button>
           </div>
         </div>
       )}
+
+      <OverlayChoiceModal
+        open={checkoutCompleteOpen}
+        onBackdropClick={() => setCheckoutCompleteOpen(false)}
+        imageSrc="/assets/complete%20order%20mark.svg"
+        imageAlt=""
+        title="Congratulations"
+        titleClassName="text-2xl font-bold"
+        message="You successfully Completed your order Enjoy your service"
+        actionsLayout="column"
+        panelClassName="px-4 py-8"
+        actions={[
+          {
+            label: 'Track Order',
+            variant: 'green',
+            onClick: () => {
+              setCheckoutCompleteOpen(false);
+              setActiveTab('ongoing');
+            },
+          },
+          {
+            label: 'Go to home',
+            variant: 'outline-green',
+            onClick: () => {
+              setCheckoutCompleteOpen(false);
+              navigate('/home');
+            },
+          },
+        ]}
+      />
+
+      <OverlayChoiceModal
+        open={!!deleteTarget}
+        onBackdropClick={() => setDeleteTarget(null)}
+        title="Delete item?"
+        actions={[
+          { label: 'Yes', variant: 'green', onClick: deleteItem },
+          { label: 'No', variant: 'primary', onClick: () => setDeleteTarget(null) },
+        ]}
+      />
     </div>
   );
 };

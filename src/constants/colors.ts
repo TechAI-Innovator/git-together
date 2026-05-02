@@ -6,5 +6,5 @@ export const colors = {
   /** Overlay modal panel fill — `--color-overlay-panel-background` in index.css */
   overlayPanelBackground: '#272727',
   /** App green — `--color-app-green` in index.css */
-  appGreen: '#00FF00',
+  appGreen: '#00AF00',
 } as const;

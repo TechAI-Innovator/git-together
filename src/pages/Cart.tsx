@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Button from '../components/Button';
+import OverlayChoiceModal from '../components/OverlayChoiceModal';
 import { responsivePx } from '../constants/responsive';
 
 /* ── Types ─────────────────────────────────────────── */
@@ -117,7 +118,7 @@ const Cart: React.FC = () => {
   };
 
   // Demo breakdown data — would come from item customization in real data
-  const getBreakdown = (_item: CartItem) => ({
+  const getBreakdown = () => ({
     sauce: { name: 'Stew', price: 800 },
     secondServing: {
       main: { name: 'Rice', price: 1500 },
@@ -135,7 +136,7 @@ const Cart: React.FC = () => {
   const renderItemCard = (restaurant: RestaurantOrder, item: CartItem) => {
     const hasBreakdown = itemHasMultiServingBreakdown(item.name);
     const isOpen = hasBreakdown && !!expandedItems[item.id];
-    const breakdown = hasBreakdown ? getBreakdown(item) : null;
+    const breakdown = hasBreakdown ? getBreakdown() : null;
 
     return (
       <div
@@ -311,7 +312,7 @@ const Cart: React.FC = () => {
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={() => navigate('/order')}
+                  onClick={() => navigate('/orders')}
                   className="flex-1 rounded-xl bg-app-green py-3 text-sm text-background transition-opacity hover:opacity-90"
                 >
                   Checkout
@@ -333,69 +334,31 @@ const Cart: React.FC = () => {
         <div
           className={`fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-overlay-panel-background ${responsivePx} pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]`}
         >
-          <Button onClick={() => navigate('/order')} variant="primary">
+          <Button onClick={() => navigate('/orders')} variant="primary">
             Proceed to order
           </Button>
         </div>
       )}
 
-      {/* Delete confirmation — copied from MealDetails */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDeleteTarget(null)}>
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-          <div
-            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-foreground text-base font-medium">Delete item?</p>
-            <div className="flex w-full min-w-[200px] gap-12">
-              <button
-                type="button"
-                onClick={deleteItem}
-                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
-              >
-                Yes
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(null)}
-                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <OverlayChoiceModal
+        open={!!deleteTarget}
+        onBackdropClick={() => setDeleteTarget(null)}
+        title="Delete item?"
+        actions={[
+          { label: 'Yes', variant: 'green', onClick: deleteItem },
+          { label: 'No', variant: 'primary', onClick: () => setDeleteTarget(null) },
+        ]}
+      />
 
-      {/* Remove restaurant — same overlay pattern as MealDetails delete serving */}
-      {removeTarget !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setRemoveTarget(null)}>
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-          <div
-            className="relative z-10 flex flex-col items-center gap-4 rounded-xl border border-white/15 bg-overlay-panel-background px-5 py-4 shadow-lg backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-foreground text-base font-medium">Remove order?</p>
-            <div className="flex w-full min-w-[200px] gap-12">
-              <button
-                type="button"
-                onClick={removeRestaurant}
-                className="flex-1 rounded-md bg-app-green py-2 text-center text-sm font-semibold text-black transition-opacity hover:opacity-80"
-              >
-                Yes
-              </button>
-              <button
-                type="button"
-                onClick={() => setRemoveTarget(null)}
-                className="flex-1 rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <OverlayChoiceModal
+        open={removeTarget !== null}
+        onBackdropClick={() => setRemoveTarget(null)}
+        title="Remove order?"
+        actions={[
+          { label: 'Yes', variant: 'green', onClick: removeRestaurant },
+          { label: 'No', variant: 'primary', onClick: () => setRemoveTarget(null) },
+        ]}
+      />
     </div>
   );
 };
