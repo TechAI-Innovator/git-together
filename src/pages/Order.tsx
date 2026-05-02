@@ -222,13 +222,7 @@ const Order: React.FC = () => {
     );
   };
 
-  const statusColor = (status: OngoingOrder['status']) => {
-    switch (status) {
-      case 'preparing': return 'text-primary';
-      case 'on the way': return 'text-app-green';
-      case 'arriving': return 'text-app-green';
-    }
-  };
+  const firstItem = items[0];
 
   return (
     <div className="relative w-full min-h-screen bg-background font-[var(--font-poppins)]">
