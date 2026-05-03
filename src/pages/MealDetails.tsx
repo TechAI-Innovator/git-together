@@ -232,7 +232,7 @@ const MealDetails: React.FC = () => {
               </div>
             )}
           </div>
-          <p className={`mt-1 text-right text-xs ${serving.sauce ? 'font-medium text-app-green' : 'text-muted-foreground'}`}>
+          <p className={`mt-1 text-right text-xs ${serving.sauce ? 'font-medium text-popup-green' : 'text-muted-foreground'}`}>
             Cost: ₦{saucePrice.toLocaleString()}
           </p>
         </div>
@@ -280,7 +280,7 @@ const MealDetails: React.FC = () => {
               </div>
             )}
           </div>
-          <p className={`mt-1 text-right text-xs ${serving.extras ? 'font-medium text-app-green' : 'text-muted-foreground'}`}>
+          <p className={`mt-1 text-right text-xs ${serving.extras ? 'font-medium text-popup-green' : 'text-muted-foreground'}`}>
             Cost: ₦{extrasPrice.toLocaleString()}
           </p>
         </div>

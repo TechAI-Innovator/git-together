@@ -349,7 +349,7 @@ const Order: React.FC = () => {
                                   />
                                 </svg>
                               )}
-                            </span>
+                    </span>
                             {isLast && (
                               <span aria-hidden className="absolute left-[11px] top-6 h-3 w-0.5 bg-primary" />
                             )}
@@ -370,8 +370,8 @@ const Order: React.FC = () => {
                                     View
                                   </button>
                                 )}
-                              </div>
-                            </div>
+                  </div>
+                  </div>
                           </li>
                         );
                       })}
@@ -399,7 +399,7 @@ const Order: React.FC = () => {
           <div className="flex justify-between border-t border-white/40 pt-3">
             <span className="text-xs font-semibold text-foreground">Total</span>
             <span className="text-xs font-semibold text-foreground">₦{total.toLocaleString()}</span>
-          </div>
+            </div>
           <div className="mt-6">
             <Button onClick={() => setCheckoutCompleteOpen(true)} variant="primary">
               Checkout
@@ -415,28 +415,39 @@ const Order: React.FC = () => {
         imageAlt=""
         title="Congratulations"
         titleClassName="text-2xl font-bold"
-        message="You successfully Completed your order Enjoy your service"
-        actionsLayout="column"
-        panelClassName="px-4 py-8"
-        actions={[
-          {
-            label: 'Track Order',
-            variant: 'green',
-            onClick: () => {
-              setCheckoutCompleteOpen(false);
-              setOngoingTrackingOpen(false);
-              setActiveTab('ongoing');
-            },
-          },
-          {
-            label: 'Go to home',
-            variant: 'outline-green',
-            onClick: () => {
-              setCheckoutCompleteOpen(false);
-              navigate('/home');
-            },
-          },
-        ]}
+        message={
+          <p className="text-sm leading-relaxed text-foreground/70">
+            You successfully Completed your order
+            <br />
+            Enjoy your service
+          </p>
+        }
+        panelClassName="mx-4 w-full max-w-sm px-4 py-8"
+        footer={
+          <>
+            <Button
+              variant="appGreen"
+              className="!py-3 !text-base"
+              onClick={() => {
+                setCheckoutCompleteOpen(false);
+                setOngoingTrackingOpen(false);
+                setActiveTab('ongoing');
+              }}
+            >
+              Track Order
+            </Button>
+            <Button
+              variant="outlineAppGreen"
+              className="!py-3 !text-base"
+              onClick={() => {
+                setCheckoutCompleteOpen(false);
+                navigate('/home');
+              }}
+            >
+              Go to home
+            </Button>
+          </>
+        }
       />
 
       <OverlayChoiceModal

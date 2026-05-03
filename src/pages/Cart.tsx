@@ -313,7 +313,7 @@ const Cart: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/orders')}
-                  className="flex-1 rounded-xl bg-app-green py-3 text-sm text-background transition-opacity hover:opacity-90"
+                  className="flex-1 rounded-xl bg-popup-green py-3 text-sm text-black transition-opacity hover:opacity-90"
                 >
                   Checkout
                 </button>

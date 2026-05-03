@@ -4,6 +4,7 @@ import api, { auth } from '../lib/api';
 import type { MenuItemWithRestaurant } from '../lib/api';
 import { formatDeliveryTime } from '../lib/formatDeliveryTime';
 import { responsivePx, responsivePt } from '../constants/responsive';
+import { PROFILE_AVATAR_IMAGE } from '../constants/profileAvatar';
 import SearchBar from '../components/SearchBar';
 import BottomNav from '../components/BottomNav';
 import MenuOverlay from '../components/MenuOverlay';
@@ -24,9 +25,6 @@ interface MealDisplay {
   price: string;
   image: string;
 }
-
-/** Same avatar as header + menu overlay profile row */
-const PROFILE_AVATAR_IMAGE = '/assets/stefan-stefancik-QXevDflbl8A-unsplash 1.png';
 
 // Placeholder images for meals without images - randomly assigned
 const PLACEHOLDER_IMAGES = [
