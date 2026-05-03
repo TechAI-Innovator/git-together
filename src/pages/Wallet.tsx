@@ -1,149 +1,163 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowDown, ArrowUp, Building2, Plus } from 'lucide-react';
 import api from '../lib/api';
 import BottomNav from '../components/BottomNav';
+import { responsivePx } from '../constants/responsive';
 
 interface UserProfile {
   first_name?: string;
   last_name?: string;
+  avatar_url?: string;
 }
+
+type TxType = 'deposit' | 'sent' | 'received';
+type TxStatus = 'Received' | 'Successful' | 'Fail';
 
 interface Transaction {
   id: string;
-  type: 'deposit' | 'sent' | 'received';
-  description: string;
+  type: TxType;
+  title: string;
+  timeAgo: string;
   amount: number;
-  date: string;
-  time: string;
   isPositive: boolean;
+  status: TxStatus;
 }
+
+const TRANSACTIONS: Transaction[] = [
+  { id: '1', type: 'deposit', title: 'Deposit', timeAgo: '5 mins. ago', amount: 5600, isPositive: true, status: 'Received' },
+  { id: '2', type: 'sent', title: 'Sent', timeAgo: '23 mins. ago', amount: 2000, isPositive: false, status: 'Successful' },
+  { id: '3', type: 'received', title: 'Received', timeAgo: '15 mins. ago', amount: 2000, isPositive: true, status: 'Successful' },
+  { id: '4', type: 'deposit', title: 'Deposit', timeAgo: '2 hrs. ago', amount: 18000, isPositive: true, status: 'Received' },
+  { id: '5', type: 'deposit', title: 'Deposit', timeAgo: '2 hrs. ago', amount: 18000, isPositive: true, status: 'Fail' },
+];
 
 const Wallet: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
-
-  // Dummy data
   const balance = 23600;
-  const transactions: Transaction[] = [
-    { id: '1', type: 'deposit', description: 'Deposited from access bank account', amount: 5600, date: '12 June, 2023', time: '10:00AM', isPositive: true },
-    { id: '2', type: 'sent', description: 'Sent for rice and stew order', amount: 2000, date: '12 June, 2023', time: '10:00AM', isPositive: false },
-    { id: '3', type: 'received', description: 'Received from order refund', amount: 2000, date: '12 June, 2023', time: '10:00AM', isPositive: true },
-    { id: '4', type: 'deposit', description: 'Deposited from access bank account', amount: 18000, date: '12 June, 2023', time: '10:00AM', isPositive: true },
-    { id: '5', type: 'deposit', description: 'Deposited from access bank account', amount: 18000, date: '12 June, 2023', time: '10:00AM', isPositive: true },
-  ];
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const { data } = await api.getProfile();
-      if (data) {
-        setUser(data as UserProfile);
-      }
-    };
-    fetchProfile();
+    api.getProfile().then(({ data }) => {
+      if (data) setUser(data as UserProfile);
+    });
   }, []);
 
+  const fullName = user
+    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'John Doe'
+    : 'John Doe';
+
+  const renderTxIcon = (type: TxType) => {
+    if (type === 'sent') return <ArrowUp className="h-6 w-6 text-foreground" strokeWidth={2.25} />;
+    if (type === 'received') return <ArrowDown className="h-6 w-6 text-foreground" strokeWidth={2.25} />;
+    return <Building2 className="h-6 w-6 text-foreground" strokeWidth={2.25} />;
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#1a1a1a] font-[var(--font-poppins)]">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-12 pb-6">
-        <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center">
-          <img src="/assets/Back.svg" alt="Back" className="w-6 h-6" />
-        </button>
-        <h1 className="text-white text-xl font-semibold">Wallet</h1>
-        <div className="w-10 h-10" /> {/* Spacer for centering */}
-      </div>
+    <div className="relative min-h-screen w-full bg-background pb-28 font-[var(--font-poppins)]">
+      {/* Orange wallet background — covers ~3/5 */}
+      <div
+        className="absolute inset-x-0 top-0 h-[60vh] bg-cover bg-center"
+        style={{ backgroundImage: "url('/assets/cart Background.png')" }}
+        aria-hidden
+      />
 
-      {/* User greeting and avatar */}
-      <div className="flex items-center gap-3 px-5 mb-6">
-        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/20">
-          <img 
-            src="/assets/user 1 1-home.png" 
-            alt="User" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div>
-          <p className="text-white/70 text-sm">Welcome,</p>
-          <h2 className="text-white font-semibold text-lg">
-            {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'John Doe' : 'John Doe'}
-          </h2>
-        </div>
-      </div>
-
-      {/* Balance Card */}
-      <div className="mx-5 mb-5 bg-white rounded-3xl p-6">
-        <p className="text-gray-500 text-sm mb-1">Your balance</p>
-        <div className="flex items-baseline gap-1 mb-6">
-          <span className="text-[#1a1a1a] text-4xl font-bold">₦</span>
-          <span className="text-[#1a1a1a] text-4xl font-bold">{balance.toLocaleString()}</span>
-        </div>
-        
-        {/* Deposit Button */}
-        <button 
-          onClick={() => navigate('/deposit')}
-          className="w-full bg-[#FF6B35] hover:bg-[#e55a2a] transition-colors rounded-full py-4 flex items-center justify-center gap-3 mb-4"
-        >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+      <div className={`relative ${responsivePx} pt-10`}>
+        {/* User greeting */}
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 overflow-hidden rounded-full border border-foreground/30">
+            <img
+              src={user?.avatar_url || '/assets/user 1 1-home.png'}
+              alt=""
+              className="h-full w-full object-cover"
+            />
           </div>
-          <span className="text-white font-semibold text-lg">Deposit</span>
-        </button>
+          <div className="leading-tight">
+            <p className="text-xs text-foreground/90">Welcome,</p>
+            <h2 className="text-base font-semibold text-foreground">{fullName}</h2>
+          </div>
+        </div>
+
+        {/* Balance */}
+        <div className="mt-14 flex flex-col items-center">
+          <p className="text-sm text-foreground">Your balance</p>
+          <p className="mt-1 text-5xl font-bold text-foreground">
+            ₦{balance.toLocaleString()}
+          </p>
+        </div>
+
+        {/* Deposit button */}
+        <div className="mt-12">
+          <button
+            type="button"
+            onClick={() => navigate('/deposit')}
+            className="relative flex h-14 w-full items-center justify-center rounded-full bg-background"
+          >
+            <span className="absolute left-0 top-0 flex h-14 w-14 items-center justify-center rounded-full bg-primary">
+              <ArrowDown className="h-5 w-5 text-foreground" strokeWidth={2.5} />
+            </span>
+            <span className="text-base text-primary">Deposit</span>
+          </button>
+        </div>
 
         {/* Add new card */}
-        <button 
+        <button
+          type="button"
           onClick={() => navigate('/deposit')}
-          className="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-300 transition-colors"
+          className="mx-auto mt-4 flex items-center gap-2 text-sm text-foreground"
         >
-          <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center">
-            <span className="text-gray-400 text-xs leading-none">+</span>
-          </div>
-          <span className="text-sm">Add new card</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-foreground">
+            <Plus className="h-3 w-3 text-foreground" strokeWidth={2.5} />
+          </span>
+          <span>Add new card</span>
         </button>
       </div>
 
-      {/* Transactions Section */}
-      <div className="px-5 pb-28">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold text-lg">Transactions</h3>
-          <button className="text-[#FF6B35] text-sm font-medium">See all</button>
+      {/* Transactions panel */}
+      <div className={`relative mt-8 rounded-t-3xl bg-background ${responsivePx} pt-6`}>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base text-foreground">Transactions</h3>
+          <button className="text-xs text-muted-foreground/80">See all</button>
         </div>
 
-        {/* Transaction List */}
         <div className="space-y-3">
-          {transactions.map((transaction) => (
-            <div 
-              key={transaction.id}
-              className="bg-[#2a2a2a] rounded-2xl p-4 flex items-center gap-3"
+          {TRANSACTIONS.map((tx) => (
+            <div
+              key={tx.id}
+              className="flex items-center gap-3 rounded-2xl bg-overlay-panel-background p-3"
             >
-              {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-[#FF6B35] flex items-center justify-center flex-shrink-0">
-                {transaction.type === 'deposit' ? (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 21H21M5 21V7L12 3L19 7V21M9 21V13H15V21M9 9H9.01M15 9H15.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : transaction.type === 'sent' ? (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary">
+                {renderTxIcon(tx.type)}
               </div>
 
-              {/* Details */}
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm truncate">{transaction.description}</p>
-                <p className="text-gray-500 text-xs">{transaction.date} | {transaction.time}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-foreground">{tx.title}</p>
+                <p className="text-xs text-muted-foreground/80">{tx.timeAgo}</p>
               </div>
 
-              {/* Amount */}
-              <div className="flex-shrink-0">
-                <span className={`font-bold text-base ${transaction.isPositive ? 'text-app-green' : 'text-[#EF4444]'}`}>
-                  {transaction.isPositive ? '+' : '-'}₦{transaction.amount.toLocaleString()}
+              <div className="flex flex-col items-end">
+                <span
+                  className={`text-sm ${
+                    tx.status === 'Fail'
+                      ? 'text-primary'
+                      : tx.isPositive
+                      ? 'text-app-green'
+                      : 'text-foreground'
+                  }`}
+                >
+                  {tx.isPositive ? '+ ' : '- '}
+                  {tx.amount.toLocaleString()} NGN
+                </span>
+                <span
+                  className={`text-xs ${
+                    tx.status === 'Fail'
+                      ? 'text-primary'
+                      : tx.status === 'Received'
+                      ? 'text-foreground/70'
+                      : 'text-app-green'
+                  }`}
+                >
+                  {tx.status}
                 </span>
               </div>
             </div>
