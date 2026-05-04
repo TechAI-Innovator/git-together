@@ -5,6 +5,10 @@ import api from '../lib/api';
 import BottomNav from '../components/BottomNav';
 import { responsivePx } from '../constants/responsive';
 import { PROFILE_AVATAR_IMAGE } from '../constants/profileAvatar';
+import { WALLET_TRANSACTIONS, WALLET_TX_ICON_DOWN } from '../constants/walletTransactions';
+import WalletTransactionRow from '../components/WalletTransactionRow';
+import WalletDepositFromPanel from '../components/WalletDepositFromPanel';
+import OverlayModalBackdropLayer from '../components/OverlayModalBackdropLayer';
 
 interface UserProfile {
   first_name?: string;
@@ -13,35 +17,10 @@ interface UserProfile {
   profile_image?: string;
 }
 
-type TxType = 'deposit' | 'sent' | 'received';
-type TxStatus = 'Received' | 'Successful' | 'Fail';
-
-interface Transaction {
-  id: string;
-  type: TxType;
-  title: string;
-  timeAgo: string;
-  amount: number;
-  isPositive: boolean;
-  status: TxStatus;
-}
-
-/** Wallet arrows from `public/assets` (replaces custom SVG icons). */
-const WALLET_ARROW_DOWN = '/assets/arrow-down-Recovered.svg';
-const WALLET_ARROW_UP = '/assets/arrow-up.png';
-const WALLET_BANK_ICON = '/assets/bank 1.svg';
-
-const TRANSACTIONS: Transaction[] = [
-  { id: '1', type: 'deposit', title: 'Deposit', timeAgo: '5 mins. ago', amount: 5600, isPositive: true, status: 'Received' },
-  { id: '2', type: 'sent', title: 'Sent', timeAgo: '23 mins. ago', amount: 2000, isPositive: false, status: 'Successful' },
-  { id: '3', type: 'received', title: 'Received', timeAgo: '15 mins. ago', amount: 2000, isPositive: true, status: 'Successful' },
-  { id: '4', type: 'deposit', title: 'Deposit', timeAgo: '2 hrs. ago', amount: 18000, isPositive: true, status: 'Received' },
-  { id: '5', type: 'deposit', title: 'Deposit', timeAgo: '2 hrs. ago', amount: 18000, isPositive: true, status: 'Fail' },
-];
-
 const Wallet: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [depositExpanded, setDepositExpanded] = useState(false);
   const balance = 23600;
 
   useEffect(() => {
@@ -54,16 +33,6 @@ const Wallet: React.FC = () => {
     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'John Doe'
     : 'John Doe';
 
-  const renderTxIcon = (type: TxType) => {
-    if (type === 'sent') {
-      return <img src={WALLET_ARROW_UP} alt="" className="h-7 w-7 object-contain" />;
-    }
-    if (type === 'received') {
-      return <img src={WALLET_ARROW_DOWN} alt="" className="h-7 w-7 object-contain" />;
-    }
-    return <img src={WALLET_BANK_ICON} alt="" className="h-6 w-6 object-contain" />;
-  };
-
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background pb-28 font-[var(--font-poppins)]">
       {/* Orange wallet background — covers ~3/5 */}
@@ -73,7 +42,9 @@ const Wallet: React.FC = () => {
         aria-hidden
       />
 
-      <div className={`relative shrink-0 ${responsivePx} pt-10`}>
+      <div
+        className={`relative shrink-0 ${responsivePx} pt-10${depositExpanded ? ' z-40' : ''}`}
+      >
         {/* User greeting */}
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 overflow-hidden rounded-full border border-foreground/30">
@@ -97,32 +68,52 @@ const Wallet: React.FC = () => {
           </p>
         </div>
 
-        {/* Deposit button */}
-        <div className="mt-12">
+        {/* Deposit — expanded panel is absolute so flow below does not shift */}
+        <div className="relative">
+          <div className="relative mt-12 h-12 w-full">
+            {!depositExpanded ? (
+              <button
+                type="button"
+                onClick={() => setDepositExpanded(true)}
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-background"
+              >
+                <span className="absolute left-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                  <img src={WALLET_TX_ICON_DOWN} alt="" className="h-7 w-7 object-contain" />
+                </span>
+                <span className="text-lg text-primary">Deposit</span>
+              </button>
+            ) : (
+              <div className="absolute left-0 right-0 top-0">
+                <WalletDepositFromPanel
+                  onClose={() => setDepositExpanded(false)}
+                  onSelectMethod={(method) => {
+                    setDepositExpanded(false);
+                    navigate('/deposit', { state: { depositMethod: method } });
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Add new card — keep layout space when expanded so nothing below moves */}
           <button
             type="button"
-            onClick={() => navigate('/deposit')}
-            className="relative flex h-12 w-full items-center justify-center rounded-full bg-background"
+            onClick={() => setDepositExpanded(true)}
+            className={`mx-auto mt-6 flex items-center gap-2 text-xs text-foreground/80 ${depositExpanded ? 'pointer-events-none invisible' : ''}`}
           >
-            <span className="absolute left-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-              <img src={WALLET_ARROW_DOWN} alt="" className="h-7 w-7 object-contain" />
+            <span className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-foreground">
+              <Plus className="h-3 w-3 text-foreground" strokeWidth={3} />
             </span>
-            <span className="text-lg text-primary">Deposit</span>
+            <span>Add new card</span>
           </button>
         </div>
-
-        {/* Add new card */}
-        <button
-          type="button"
-          onClick={() => navigate('/deposit')}
-          className="mx-auto mt-6 flex items-center gap-2 text-xs text-foreground/80"
-        >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-foreground">
-            <Plus className="h-3 w-3 text-foreground" strokeWidth={3} />
-          </span>
-          <span>Add new card</span>
-        </button>
       </div>
+
+      {depositExpanded && (
+        <div className="pointer-events-auto fixed inset-0 z-[35]" aria-hidden role="presentation">
+          <OverlayModalBackdropLayer />
+        </div>
+      )}
 
       {/* Transactions panel — flex-1 so #111111 fills viewport below the cards */}
       <div
@@ -130,50 +121,18 @@ const Wallet: React.FC = () => {
       >
         <div className="mb-6 flex shrink-0 items-center justify-between">
           <h3 className="text-xs text-foreground/90">Transactions</h3>
-          <button className="text-xs text-foreground/90">See all</button>
+          <button
+            type="button"
+            onClick={() => navigate('/wallet/transactions')}
+            className="text-xs text-foreground/90"
+          >
+            See all
+          </button>
         </div>
 
         <div className="space-y-3">
-          {TRANSACTIONS.map((tx) => (
-            <div
-              key={tx.id}
-              className="flex items-center gap-3 rounded-lg bg-overlay-panel-background p-2"
-            >
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary">
-                {renderTxIcon(tx.type)}
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-foreground">{tx.title}</p>
-                <p className="text-xs text-muted-foreground/80">{tx.timeAgo}</p>
-              </div>
-
-              <div className="flex flex-col items-end">
-                <span
-                  className={`text-sm ${
-                    tx.status === 'Fail'
-                      ? 'text-primary'
-                      : tx.isPositive
-                      ? 'text-popup-green'
-                      : 'text-foreground'
-                  }`}
-                >
-                  {tx.isPositive ? '+ ' : '- '}
-                  {tx.amount.toLocaleString()} NGN
-                </span>
-                <span
-                  className={`text-xs ${
-                    tx.status === 'Fail'
-                      ? 'text-primary'
-                      : tx.status === 'Received'
-                      ? 'text-foreground/80'
-                      : 'text-popup-green'
-                  }`}
-                >
-                  {tx.status}
-                </span>
-              </div>
-            </div>
+          {WALLET_TRANSACTIONS.map((tx) => (
+            <WalletTransactionRow key={tx.id} tx={tx} variant="card" />
           ))}
         </div>
       </div>

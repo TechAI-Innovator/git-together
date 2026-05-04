@@ -1,4 +1,5 @@
 import React from 'react';
+import OverlayModalBackdropLayer from './OverlayModalBackdropLayer';
 
 /** `green` = popup lime (Yes/No). `app-green` = brand green (e.g. legacy modal actions). */
 export type OverlayModalActionVariant = 'green' | 'app-green' | 'primary' | 'outline-green';
@@ -88,7 +89,7 @@ const OverlayChoiceModal: React.FC<OverlayChoiceModalProps> = ({
       onClick={onBackdropClick}
       role="presentation"
     >
-      <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+      <OverlayModalBackdropLayer />
       <div
         className={`relative z-10 flex flex-col items-center rounded-xl border border-white/15 bg-overlay-panel-background shadow-lg backdrop-blur-md ${
           useFooter ? 'gap-0' : 'gap-4 px-5 py-4'

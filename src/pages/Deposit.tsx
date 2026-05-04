@@ -1,13 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiCopy, FiCreditCard } from 'react-icons/fi';
 import { BsBank } from 'react-icons/bs';
 
 type TransferMethod = 'wallet' | 'card' | 'bank';
 
+type DepositLocationState = { depositMethod?: 'card' | 'bank' };
+
 const Deposit = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeMethod, setActiveMethod] = useState<TransferMethod>('wallet');
+
+  useEffect(() => {
+    const m = (location.state as DepositLocationState | null)?.depositMethod;
+    if (m === 'card' || m === 'bank') setActiveMethod(m);
+  }, [location.state]);
   const [amount, setAmount] = useState('');
   const [cardHolder, setCardHolder] = useState('');
   const [cardNumber, setCardNumber] = useState('');
