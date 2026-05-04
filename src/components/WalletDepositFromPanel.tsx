@@ -1,7 +1,7 @@
 import React from 'react';
+import BankTransferMethodRow from './BankTransferMethodRow';
 
 const CREDIT_ICON = '/assets/credit-card 1.svg';
-const BANK_ICON = '/assets/bank 1.svg';
 
 export interface WalletDepositFromPanelProps {
   onClose: () => void;
@@ -49,16 +49,10 @@ const WalletDepositFromPanel: React.FC<WalletDepositFromPanelProps> = ({
           <span className="text-lg font-normal text-foreground">Card</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => onSelectMethod('bank')}
-          className="flex w-full items-center gap-3 rounded-lg bg-overlay-panel-background p-3 text-left font-normal transition-opacity hover:opacity-90 active:opacity-80"
-        >
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
-            <img src={BANK_ICON} alt="" className="h-7 w-7 object-contain" />
-          </span>
-          <span className="text-lg font-normal text-foreground">Bank transfer</span>
-        </button>
+        <BankTransferMethodRow
+          onPress={() => onSelectMethod('bank')}
+          labelClassName="text-lg font-normal text-foreground"
+        />
       </div>
     </div>
   );
