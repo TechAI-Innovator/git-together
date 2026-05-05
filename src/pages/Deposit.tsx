@@ -68,6 +68,10 @@ const Deposit = () => {
   };
 
   const handleConfirm = () => {
+    if (activeMethod === 'bank') {
+      navigate('/deposit/bank-transfer-details');
+      return;
+    }
     navigate('/deposit-success');
   };
 
@@ -161,46 +165,45 @@ const Deposit = () => {
 
             {activeMethod === 'card' && (
               <div className="space-y-4">
-                <div className="rounded-lg bg-overlay-panel-background p-4">
-                  <label className="text-xs uppercase tracking-wide text-muted-foreground">Card Holder</label>
+                <div className="rounded-lg bg-overlay-panel-background px-4 py-2.5">
+                  <label className="text-xs uppercase tracking-wide text-muted-foreground/50">Card Holder</label>
                   <input
                     type="text"
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
-                    className="mt-1 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
-                    placeholder="Enter name"
+                    className="mt-1 w-full bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground"
                   />
                 </div>
-                <div className="rounded-lg bg-overlay-panel-background p-4">
-                  <label className="text-xs uppercase tracking-wide text-muted-foreground">Card Number</label>
+                <div className="rounded-lg bg-overlay-panel-background px-4 py-2.5">
+                  <label className="text-xs uppercase tracking-wide text-muted-foreground/50">Card Number</label>
                   <input
                     type="text"
                     value={cardNumber}
                     onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                    className="mt-1 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+                    className="mt-1 w-full bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground/50"
                     placeholder="0000 0000 0000 0000"
                     maxLength={19}
                   />
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-1 rounded-lg bg-overlay-panel-background p-4">
-                    <label className="text-xs uppercase tracking-wide text-muted-foreground">Card Expiry</label>
+                  <div className="flex-1 rounded-lg bg-overlay-panel-background px-4 py-2.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground/50">Card Expiry</label>
                     <input
                       type="text"
                       value={cardExpiry}
                       onChange={(e) => setCardExpiry(e.target.value)}
-                      className="mt-1 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+                      className="mt-1 w-full bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground/50"
                       placeholder="MM / YY"
                       maxLength={7}
                     />
                   </div>
-                  <div className="flex-1 rounded-lg bg-overlay-panel-background p-4">
-                    <label className="text-xs uppercase tracking-wide text-muted-foreground">CVV</label>
+                  <div className="flex-1 rounded-lg bg-overlay-panel-background px-4 py-2.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground/50">CVV</label>
                     <input
                       type="text"
                       value={cvv}
                       onChange={(e) => setCvv(e.target.value)}
-                      className="mt-1 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+                      className="mt-1 w-full bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground/50"
                       placeholder="123"
                       maxLength={4}
                     />

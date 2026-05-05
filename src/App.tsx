@@ -29,6 +29,7 @@ import WalletTransactions from './pages/WalletTransactions';
 import Discover from './pages/Discover';
 import Support from './pages/Support';
 import Deposit from './pages/Deposit';
+import DepositBankTransferDetails from './pages/DepositBankTransferDetails';
 import DepositSuccess from './pages/DepositSuccess';
 import Cart from './pages/Cart';
 import Order from './pages/Order';
@@ -78,6 +79,10 @@ function App() {
           <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
           <Route path="/deposit" element={<ProtectedRoute><Deposit /></ProtectedRoute>} />
+          <Route
+            path="/deposit/bank-transfer-details"
+            element={<ProtectedRoute><DepositBankTransferDetails /></ProtectedRoute>}
+          />
           <Route path="/deposit-success" element={<ProtectedRoute><DepositSuccess /></ProtectedRoute>} />
         </Routes>
       </MobileOnly>
