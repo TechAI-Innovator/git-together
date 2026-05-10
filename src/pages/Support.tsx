@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Camera, Check, CheckCheck, MoreVertical, Search } from 'lucide-react';
-import { PiPaperPlaneRightFill } from 'react-icons/pi';
+import { useNavigate } from 'react-router-dom';
+import { Check, CheckCheck, MoreVertical, Search } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import SupportMessageBar from '../components/SupportMessageBar';
+import { SUPPORT_AVATAR_SRC } from '../constants/supportUi';
 import { responsivePx } from '../constants/responsive';
-
-const SUPPORT_LOGO = '/logo/Fast bite transparent I.png';
 
 type PreviewKind = 'typing' | 'read' | 'sent' | 'unread';
 
@@ -82,6 +82,7 @@ function PreviewLine({ row }: { row: ChatPreview }) {
 }
 
 const Support = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [draft, setDraft] = useState('');
 
@@ -123,10 +124,11 @@ const Support = () => {
             <button
               key={row.id}
               type="button"
+              onClick={() => navigate(`/support/chat/${row.id}`)}
               className="flex w-full gap-3 py-3 text-left transition-opacity hover:opacity-90 active:opacity-80"
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-muted/50">
-                <img src={SUPPORT_LOGO} alt="" className="h-full w-full object-cover" />
+                <img src={SUPPORT_AVATAR_SRC} alt="" className="h-full w-full object-cover" />
               </div>
               <div className="min-w-0 flex-1">
                 {/* Title + time: flex so different font sizes share one vertical center line. */}
@@ -161,31 +163,7 @@ const Support = () => {
         </div>
       </div>
 
-      <div
-        className={`fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-muted/20 bg-background ${responsivePx} pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-3`}
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex flex-1 items-center gap-2 rounded-full bg-muted/40 px-4 py-2 caret-primary">
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Message"
-              className="min-w-0 flex-1 bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground/80 caret-primary"
-            />
-            <button type="button" className="shrink-0 text-muted-foreground/80 hover:text-foreground/80" aria-label="Camera">
-              <Camera className="h-7 w-7" strokeWidth={2} />
-            </button>
-          </div>
-          <button
-            type="button"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 active:opacity-80"
-            aria-label="Send"
-          >
-            <PiPaperPlaneRightFill className="h-7 w-7" aria-hidden />
-          </button>
-        </div>
-      </div>
+      <SupportMessageBar draft={draft} onDraftChange={setDraft} position="aboveNav" />
 
       <BottomNav />
     </div>
