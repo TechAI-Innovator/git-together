@@ -60,3 +60,5 @@ venv/
 # other utility scripts
 **/scripts/*
 **/scripts/**
+
+**/docs/**
