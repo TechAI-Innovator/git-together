@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/customer" },
+    { "path": "./apps/vendor" }
+  ]
+}

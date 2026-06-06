@@ -1,0 +1,21 @@
+{
+  "name": "fast-bites",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @fast-bites/customer",
+    "dev:customer": "npm run dev -w @fast-bites/customer",
+    "dev:vendor": "npm run dev -w @fast-bites/vendor",
+    "build": "node scripts/build-all.mjs",
+    "build:customer": "npm run build -w @fast-bites/customer",
+    "build:vendor": "npm run build -w @fast-bites/vendor",
+    "build:all": "node scripts/build-all.mjs",
+    "preview:customer": "npm run preview -w @fast-bites/customer",
+    "preview:vendor": "npm run preview -w @fast-bites/vendor"
+  }
+}

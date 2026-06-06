@@ -1,5 +1,5 @@
 {
-  "name": "fast-bites",
+  "name": "@fast-bites/customer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fast-bites/api-client": "*",
+    "@fast-bites/shared": "*",
     "@react-google-maps/api": "^2.20.7",
     "@supabase/supabase-js": "^2.86.2",
     "@tailwindcss/postcss": "^4.1.17",
