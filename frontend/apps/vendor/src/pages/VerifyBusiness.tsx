@@ -172,9 +172,9 @@ export default function VerifyBusiness() {
                   onChange={(event) => setBusinessType(event.target.value)}
                   className={`${inputClassName} appearance-none`}
                 >
-                  <option value="" disabled className="text-gray-400">
-                    Restaurant
-                  </option>
+                  {/* <option value="" disabled className="text-gray-400">
+                    Select
+                  </option> */}
                   {BUSINESS_TYPES.map((type) => (
                     <option key={type} value={type}>
                       {type}
