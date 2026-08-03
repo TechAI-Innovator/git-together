@@ -24,7 +24,7 @@ class BusinessRegistrationRequest(BaseModel):
 
 
 class BusinessRegistrationResponse(BaseModel):
-    restaurant_id: UUID
+    business_id: UUID
     business_verified: bool
     verification_submitted_at: Optional[datetime] = None
 
@@ -33,7 +33,7 @@ class BusinessRegistrationResponse(BaseModel):
 
 
 class BusinessRegistrationSummary(BaseModel):
-    restaurant_id: UUID
+    business_id: UUID
     business_name: str
     business_type: str
     business_verified: bool
@@ -48,6 +48,6 @@ class VerificationDocumentsRequest(BaseModel):
     documents: dict[str, str] = Field(min_length=1)
 
 
-class RestaurantImageUploadResponse(BaseModel):
+class VendorImageUploadResponse(BaseModel):
     url: str
     public_id: str
