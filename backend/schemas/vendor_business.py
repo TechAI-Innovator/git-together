@@ -18,6 +18,9 @@ class BusinessRegistrationRequest(BaseModel):
     landmark: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    opening_time: Optional[str] = None  # "HH:MM" or "HH:MM:SS"
+    closing_time: Optional[str] = None
+    working_days: Optional[list[int]] = None  # Mon=0 … Sun=6
     bank_name: Optional[str] = None
     account_number: Optional[str] = None
     account_holder_name: Optional[str] = None
@@ -39,6 +42,8 @@ class BusinessRegistrationSummary(BaseModel):
     business_verified: bool
     verification_stage: str
     documents_submitted: bool
+    documentation_skipped: bool = False
+    catalog_setup_completed: bool = False
 
     class Config:
         from_attributes = True
@@ -51,3 +56,53 @@ class VerificationDocumentsRequest(BaseModel):
 class VendorImageUploadResponse(BaseModel):
     url: str
     public_id: str
+
+
+class CatalogModifierOption(BaseModel):
+    label: str = Field(min_length=1)
+    price_delta: float = 0
+
+
+class CatalogModifierGroup(BaseModel):
+    """group is protein | extras (sauces belong under extras). Size is not a modifier."""
+
+    group: str = Field(min_length=1)
+    options: list[CatalogModifierOption] = Field(default_factory=list)
+
+
+class CatalogItemCreate(BaseModel):
+    name: str = Field(min_length=1)
+    price: float = Field(gt=0)
+    platform_category_id: Optional[UUID] = None
+    vendor_category: Optional[str] = None
+    delivery_time: Optional[int] = Field(default=None, ge=0)
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    modifiers: list[CatalogModifierGroup] = Field(default_factory=list)
+
+
+class CatalogItemsCreateRequest(BaseModel):
+    items: list[CatalogItemCreate] = Field(min_length=1)
+
+
+class CatalogItemsCreateResponse(BaseModel):
+    created_count: int
+    skipped_count: int = 0
+    item_ids: list[UUID]
+    message: Optional[str] = None
+
+
+class CatalogExtractedItem(BaseModel):
+    name: str
+    price: float
+    vendor_category: Optional[str] = None
+    delivery_time: Optional[int] = None
+    modifiers: list[CatalogModifierGroup] = Field(default_factory=list)
+
+
+class CatalogExtractResponse(BaseModel):
+    items: list[CatalogExtractedItem]
+    provider: str
+    item_count: int = 0
+    modifiers_count: int = 0
+    message: Optional[str] = None

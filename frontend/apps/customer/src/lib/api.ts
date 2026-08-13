@@ -180,6 +180,33 @@ export const api = {
 
   getCustomerProfile: () => request(`/users/profile?role=${encodeURIComponent(CUSTOMER_ROLE)}`, {}, true),
 
+  /** Upload profile photo (JPEG/PNG/WEBP/GIF, max 5MB). Returns updated profile. */
+  uploadProfileAvatar: async (file: File, role = CUSTOMER_ROLE) => {
+    try {
+      const authHeaders = await getAuthHeaders();
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(
+        `${API_URL}/users/profile/avatar?role=${encodeURIComponent(role)}`,
+        {
+          method: 'POST',
+          headers: {
+            ...authHeaders,
+          },
+          body: formData,
+        },
+      );
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        return { error: (error as { detail?: string }).detail || 'Upload failed' };
+      }
+      const data = await response.json();
+      return { data };
+    } catch {
+      return { error: 'Network error' };
+    }
+  },
+
   // Menu items - public endpoints (no auth required)
   getMenuItems: (limit = 100, offset = 0) =>
     request<MenuItemWithRestaurant[]>(`/menu/items?limit=${limit}&offset=${offset}`),
@@ -229,8 +256,12 @@ export const api = {
   deleteCartRestaurant: (restaurantId: string) =>
     request(`/cart/restaurants/${restaurantId}`, { method: 'DELETE' }, true),
 
+  removeProductFromCart: (productId: string) =>
+    request(`/cart/products/${productId}`, { method: 'DELETE' }, true),
+
+  /** @deprecated use removeProductFromCart */
   removeMenuItemFromCart: (menuItemId: string) =>
-    request(`/cart/menu-items/${menuItemId}`, { method: 'DELETE' }, true),
+    request(`/cart/products/${menuItemId}`, { method: 'DELETE' }, true),
 
   getOrderSummary: () => request('/orders/summary', {}, true),
 
@@ -259,9 +290,14 @@ export const api = {
       body: JSON.stringify(data),
     }, true),
 
-  getRestaurantMenuByCategory: (restaurantId: string, category: 'food' | 'drinks') =>
+  getRestaurantMenuByCategory: (restaurantId: string, category: string) =>
     request<RestaurantMenuItemDto[]>(
-      `/menu/restaurants/${restaurantId}/items?category=${category}`,
+      `/menu/restaurants/${restaurantId}/items?category=${encodeURIComponent(category)}`,
+    ),
+
+  getPlatformCategories: (businessType = 'Restaurant') =>
+    request<PlatformCategoryDto[]>(
+      `/menu/platform-categories?business_type=${encodeURIComponent(businessType)}`,
     ),
 
   getRestaurantHours: (restaurantId: string) =>
@@ -316,6 +352,15 @@ export interface Restaurant {
   hours_status?: string | null;
   operating_hours_text?: string | null;
   avg_delivery_minutes?: number | null;
+  business_type?: string | null;
+}
+
+export interface PlatformCategoryDto {
+  id: string;
+  business_type: string;
+  slug: string;
+  name: string;
+  sort_order: number;
 }
 
 export interface RestaurantMenuItemDto {
@@ -325,6 +370,9 @@ export interface RestaurantMenuItemDto {
   image?: string;
   delivery_minutes?: number;
   description?: string;
+  category?: string;
+  vendor_category?: string;
+  platform_category_id?: string;
 }
 
 export default api;
