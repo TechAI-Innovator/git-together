@@ -1,7 +1,9 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from sqlalchemy import text
+import database
 from routers import (
     profile_router,
     menu_router,
@@ -51,5 +53,19 @@ app.include_router(legacy_vendor_router)
 async def root():
     return {"message": "Fast Bites API"}
 
+@app.get("/health")
+async def health():
+    session_factory = database.AsyncSessionLocal
+    if session_factory is None:
+        log.error("Health check failed: database is not initialized")
+        raise HTTPException(status_code=503, detail="Database unavailable")
 
+    try:
+        async with session_factory() as session:
+            await session.execute(text("SELECT 1"))
+    except Exception:
+        log.exception("Health check failed: database query failed")
+        raise HTTPException(status_code=503, detail="Database unavailable")
+
+    return {"status": "ok", "database": "ok"}
 

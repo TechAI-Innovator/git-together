@@ -41,3 +41,10 @@ docker compose up
 |----------|----------|---------------------|
 | Frontend | Vercel   | Root directory: `frontend`, output: `dist` |
 | Backend  | Render   | `backend/`          |
+
+### Health checks
+
+The backend exposes `GET /health`, which runs a database query and returns HTTP
+503 if the database is unavailable. The customer and vendor frontends call this
+endpoint on startup and every five minutes while open to keep the backend and
+Supabase database active.

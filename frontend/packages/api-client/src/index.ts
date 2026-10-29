@@ -7,6 +7,26 @@ export function getApiUrl(): string {
   return import.meta.env.VITE_API_URL || 'http://localhost:8004';
 }
 
+const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+
+export function startHealthChecks(): void {
+  const checkHealth = async () => {
+    try {
+      const response = await fetch(`${getApiUrl()}/health`, { cache: 'no-store' });
+      if (!response.ok) {
+        console.warn(`Backend health check failed (HTTP ${response.status})`);
+      }
+    } catch (error) {
+      console.warn('Backend health check failed:', error);
+    }
+  };
+
+  void checkHealth();
+  window.setInterval(() => {
+    void checkHealth();
+  }, HEALTH_CHECK_INTERVAL_MS);
+}
+
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit & { authToken?: string | null } = {},
