@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import Button from '../components/Button';
 import BackButton from '../components/BackButton';
@@ -56,6 +56,8 @@ const getInitialLocation = () => {
 
 const Map: React.FC = () => {
   const navigate = useNavigate();
+  const { state } = useLocation() as { state?: { fromMenu?: boolean } };
+  const fromMenu = state?.fromMenu === true;
   const { isLoaded, loadError } = useGoogleMaps();
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;
@@ -69,6 +71,10 @@ const Map: React.FC = () => {
   const [error, setError] = useState('');
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [searchHasPredictions, setSearchHasPredictions] = useState(false);
+
+  const handleSkip = useCallback(() => {
+    navigate(fromMenu ? '/home' : '/complete');
+  }, [fromMenu, navigate]);
 
   // All hooks must be called before any conditional returns
   const handleLocationSelect = useCallback((location: { address: string; lat: number; lng: number }) => {
@@ -170,26 +176,27 @@ const Map: React.FC = () => {
 
     // Store in session for immediate use
     sessionStorage.setItem('user_location', JSON.stringify(selectedLocation));
-    navigate('/complete');
-  }, [selectedLocation, navigate]);
+    navigate(fromMenu ? '/home' : '/complete');
+  }, [selectedLocation, navigate, fromMenu]);
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMapRef(map);
   }, []);
 
   // Conditional returns AFTER all hooks
-  if (loadError) {
+  if (loadError || !isLoaded) {
     return (
-      <div className="w-full min-h-screen bg-background flex items-center justify-center">
-        <p className="text-red-500">Error loading maps</p>
-      </div>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className="w-full min-h-screen bg-background flex items-center justify-center">
-        <p className="text-foreground">Loading maps...</p>
+      <div className="w-full min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6">
+        <p className={loadError ? 'text-red-500' : 'text-foreground'}>
+          {loadError ? 'Error loading maps' : 'Loading maps...'}
+        </p>
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="text-foreground text-sm font-normal hover:opacity-80 transition-opacity"
+        >
+          Skip
+        </button>
       </div>
     );
   }
@@ -251,6 +258,13 @@ const Map: React.FC = () => {
               <span className="flex-1 min-w-0 text-base font-sm truncate">
                 {selectedLocation ? selectedLocation.address : 'Input your location'}
               </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="text-foreground text-sm font-normal hover:opacity-80 transition-opacity"
+            >
+              Skip
             </button>
           </div>
         </div>

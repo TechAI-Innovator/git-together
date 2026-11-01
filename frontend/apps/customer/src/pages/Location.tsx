@@ -32,6 +32,10 @@ const Location: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const handleSkip = () => {
+    navigate(fromMenu ? '/home' : '/complete');
+  };
+
   const reverseGeocode = useCallback((lat: number, lng: number) => {
     // Wait for Google Maps API to be loaded
     if (!isLoaded) {
@@ -44,7 +48,7 @@ const Location: React.FC = () => {
         state: '',
       };
       sessionStorage.setItem('detected_location', JSON.stringify(location));
-      navigate('/map');
+      navigate('/map', { state: { fromMenu } });
       return;
     }
 
@@ -65,13 +69,13 @@ const Location: React.FC = () => {
           
           // Store location in session and navigate to map page for interaction
           sessionStorage.setItem('detected_location', JSON.stringify(location));
-          navigate('/map');
+          navigate('/map', { state: { fromMenu } });
         } else {
           setError('Could not get address for your location');
         }
       }
     );
-  }, [navigate, isLoaded]);
+  }, [navigate, isLoaded, fromMenu]);
 
   const handleEnableLocation = () => {
     if (!navigator.geolocation) {
@@ -127,8 +131,16 @@ const Location: React.FC = () => {
           <div
             className={`w-full bg-black ${responsivePx} ${responsivePt} ${fromMenu ? 'pb-4' : ''}`}
           >
-            {/* Back Button */}
-            <BackButton />
+            <div className="flex items-center justify-between">
+              <BackButton />
+              <button
+                type="button"
+                onClick={handleSkip}
+                className="text-foreground text-sm font-normal hover:opacity-80 transition-opacity"
+              >
+                Skip
+              </button>
+            </div>
 
             {!fromMenu && (
               <h1 className="text-center text-[1.75rem] font-light leading-tight text-foreground">
